@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!DOCTYPE xml>
+<xml attr="value">
+    <!-- text-->
+    truc
+    <!-- comment -->
+    foo
+    &amp;&lt;&gt;&quot;
+    <node:x>foo</node:x>
+    <empty/>
+</xml>
