@@ -1,0 +1,23 @@
+{
+    "name": "svg2vectorDrawable",
+    "version": "0.0.1",
+    "description": "Convert SVG file to Android vector drawable XML file.",
+    "keywords": [
+        "xml", "svg", "Android", "vectorDrawble"
+    ],
+    "dependencies": {
+        "node-xml-lite": ">=0.0.3"
+    },
+    "homepage": "https://github.com/Ashung/svg2drawable",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Ashung/svg2drawable"
+    },
+    "author": {
+        "name": "Ashung Hung",
+        "email": "Ashung.hung@gmail.com",
+        "url": "http://github.com/Ashung"
+    },
+    "main": "index.js",
+    "licence": ""
+}
