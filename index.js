@@ -58,9 +58,10 @@ function travel(obj, levelIndex) {
         } else if(obj[i].name == 'path') {
             vectorDrawableXML += repeatString(' ', levelIndex * 4) + '<path\n';
 
+            // id = name
             // d = pathData                                 MUST
             // fill = fillColor                             DEFAULT: #000
-            // fill-opacity = fillAlpha
+            // opacity = fillAlpha
             // stroke = strokeColor
             // stroke-opacity = strokeAlpha
             // stroke-width = strokeWidth
@@ -68,7 +69,8 @@ function travel(obj, levelIndex) {
             // stroke-miterlimit = strokeMiterLimit
             // stroke-linecap = strokeLineCap
 
-            // Sketch SVG files use shapes name for id attribute.
+            // Sketch/Illustrator SVG files use shapes name for id attribute.
+            // 
             if(hasArrtib(obj[i].attrib, 'id')){
                 vectorDrawableXML += repeatString(' ', levelIndex * 5) + 'android:name="' + obj[i].attrib.id + '"\n';
             }
