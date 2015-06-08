@@ -1,25 +1,25 @@
 
 
-var xml = require("node-xml-lite");
-var svg = xml.parseFileSync('svg/weather_cloudy_ps.svg');
+var xml = require("../node_modules/node-xml-lite");
+var svg = xml.parseFileSync('../doc/img/sample_1.svg');
 
-//console.log(JSON.stringify(xml.parseFileSync('weather_cloudy_ps.svg'), '', '  '));
+console.log(svg);
 
-var width = 0;
-var height = 0;
-var viewportWidth = 0;
-var viewportHeight = 0;
+var width = 24;
+var height = 24;
+var viewportWidth = 24;
+var viewportHeight = 24;
 
 if(hasArrtib(svg.attrib, 'width')) {
-    width = parseInt(svg.attrib.width) + 'dp';
+    width = parseInt(svg.attrib.width);
 } else if(hasArrtib(svg.attrib, 'viewBox')) {
-    width = svg.attrib.viewBox.split(' ')[2] + 'dp';
+    width = svg.attrib.viewBox.split(' ')[2];
 }
 
 if(hasArrtib(svg.attrib, 'height')) {
-    height = parseInt(svg.attrib.height) + 'dp';
+    height = parseInt(svg.attrib.height);
 } else if(hasArrtib(svg.attrib, 'viewBox')) {
-    height = svg.attrib.viewBox.split(' ')[3] + 'dp';
+    height = svg.attrib.viewBox.split(' ')[3];
 }
 
 if(hasArrtib(svg.attrib, 'viewBox')) {
@@ -38,8 +38,8 @@ if(hasArrtib(svg.attrib, 'viewBox')) {
 var vectorDrawableXML = '\
 <?xml version="1.0" encoding="utf-8"?>\n\
 <vector xmlns:android="http://schemas.android.com/apk/res/android"\n\
-    android:width="' + width + '"\n\
-    android:height="' + height + '"\n\
+    android:width="' + width + 'dp"\n\
+    android:height="' + height + 'dp"\n\
     android:viewportWidth="' + viewportWidth + '"\n\
     android:viewportHeight="' + viewportHeight + '">\n\
 ';
@@ -52,11 +52,15 @@ function travel(obj, levelIndex) {
         // g = group
         // path = path
         if(obj[i].name == 'g') {
-            vectorDrawableXML += repeatString(' ', levelIndex * 4) + '<group>\n';
+            if(hasArrtib(obj[i].attrib, 'id')) {
+                vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<group android:name="' + obj[i].attrib.id + '">\n';
+            } else {
+                vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<group>\n';
+            }
             travel(obj[i].childs, levelIndex);
-            vectorDrawableXML += repeatString(' ', levelIndex * 4) + '</group>\n';
-        } else if(obj[i].name == 'path') {
-            vectorDrawableXML += repeatString(' ', levelIndex * 4) + '<path\n';
+            vectorDrawableXML += repeatString(' ', levelIndex * 1) + '</group>\n';
+        } else if(/(path|rect|circle|polygon)/i.test(obj[i].name)) {
+            vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<path\n';
 
             // id = name
             // d = pathData                                 MUST
@@ -70,27 +74,27 @@ function travel(obj, levelIndex) {
             // stroke-linecap = strokeLineCap
 
             // Sketch/Illustrator SVG files use shapes name for id attribute.
-            // 
             if(hasArrtib(obj[i].attrib, 'id')){
-                vectorDrawableXML += repeatString(' ', levelIndex * 5) + 'android:name="' + obj[i].attrib.id + '"\n';
+                vectorDrawableXML += repeatString(' ', levelIndex * 1) + 'android:name="' + obj[i].attrib.id + '"\n';
             }
 
             // Android fillColor
-            if(getArrtibValue(obj[i].attrib, 'fill') != '') {
-                vectorDrawableXML += repeatString(' ', levelIndex * 5) + 'android:fillColor="' + getArrtibValue(obj[i].attrib, 'fill') + '"\n'
-            } else {
-                vectorDrawableXML += repeatString(' ', levelIndex * 5) + 'android:fillColor="#000"\n'
+            if(getArrtibValue(obj[i].attrib, 'fill') != undefined) {
+                vectorDrawableXML += repeatString(' ', levelIndex * 2) + 'android:fillColor="' + getArrtibValue(obj[i].attrib, 'fill') + '"\n'
             }
 
-
-
-            vectorDrawableXML += repeatString(' ', levelIndex * 5) + 'android:pathData="' + obj[i].attrib.d + '"/>\n';
-
-
-            //console.log(obj[i].name + '-----' + obj[i].attrib.style)
-            //console.log(getStyleBlock(svg.childs) + '-----')
-            //console.log(getArrtibValue(obj[i].attrib, 'fill'))
-
+            // Path data
+            var d = '';
+            
+            if(/(rect)/i.test(obj[i].name)) {
+                d = rectToPath(obj[i].attrib.x, obj[i].attrib.y, obj[i].attrib.width, obj[i].attrib.height);;
+            } else if(/(polygon)/i.test(obj[i].name)) {
+                d = polygonToPath(obj[i].attrib.points);
+            } else {
+                d = obj[i].attrib.d;
+            }
+            
+            vectorDrawableXML += repeatString(' ', levelIndex * 2) + 'android:pathData="' + d + '"/>\n';
 
         }
     }
@@ -100,13 +104,14 @@ travel(svg.childs, 0);
 
 vectorDrawableXML += '</vector>';
 
+console.log('---------------------------------------------------------');
 console.log(vectorDrawableXML)
 
 
 function repeatString(str, num) {
     var t = '';
-    for(var i = 0; i < num; i ++) {
-        t += ' ';
+    for(var i = 0; i < num * 4; i ++) {
+        t += str;
     }
     return t;
 }
@@ -173,4 +178,28 @@ function getArrtibValue(obj, attrib) {
         r = eval('obj.' + attrib);
         return r;
     }
+}
+
+function rectToPath(x, y, width, height) {
+    var d = 'M';
+        d += x + ',' + y + 'L';
+        d += (parseInt(x)+parseInt(width)) + ',' + y + 'L';
+        d += (parseInt(x)+parseInt(width)) + ',' + (parseInt(y)+parseInt(height)) + 'L';
+        d += x + ',' + (parseInt(y)+parseInt(height)) + 'Z';
+    return d;
+}
+
+function polygonToPath(points) {
+    //<polygon fill="#3EFF36" points="2,29 9.5,16 17,29 "/>
+    var d = 'M';
+        d += points.replace(/ /g, 'L');
+        if(/L$/.test(d)) {
+            d.substring(0, d.length-1);
+        }
+        d += 'Z';
+    return d;
+}
+
+function circleToPath() {
+
 }

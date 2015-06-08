@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<g id="bluetooth_x5F_connecting">
+	<path id="bluetooth" style="fill-rule:evenodd;clip-rule:evenodd;" d="M19.11,16l5.34-4.34c0.36-0.29,0.57-0.75,0.55-1.21
+		c-0.01-0.46-0.25-0.9-0.63-1.17l-7-5c-0.46-0.33-1.06-0.37-1.56-0.11C15.32,4.42,15,4.94,15,5.5v7.16L8.45,7.33
+		C7.8,6.81,6.86,6.91,6.34,7.55C5.81,8.2,5.91,9.14,6.55,9.66l7.8,6.34l-7.8,6.34c-0.64,0.52-0.74,1.47-0.22,2.11
+		c0.52,0.64,1.47,0.74,2.11,0.22L15,19.34v7.16c0,0.56,0.32,1.08,0.81,1.33c0.5,0.26,1.1,0.21,1.56-0.11l7-5
+		c0.38-0.27,0.61-0.71,0.63-1.18c0.01-0.46-0.19-0.92-0.55-1.21L19.11,16z M21.03,10.58L18,13.04V8.42L21.03,10.58z M18,23.59v-4.62
+		l3.03,2.46L18,23.59z"/>
+	<g id="signal">
+		<polygon style="fill-rule:evenodd;clip-rule:evenodd;" points="30,11.5 30.06,20.35 32,22 32,10 		"/>
+		<polygon style="fill-rule:evenodd;clip-rule:evenodd;" points="28,19 28,13 24,16 		"/>
+	</g>
+</g>
+</svg>
