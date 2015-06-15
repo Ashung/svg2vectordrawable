@@ -6,12 +6,24 @@
  * String: svgFilePath '/c/vector.svg'
  * String: vectorDrawablePath  '/c/vectorDrawable.xml'
  */
-exports.convert = function(svgFilePath, vectorDrawablePath) {
+exports.convert = function(svgFilePath, vectorDrawablePath, debugMode) {
+
     var xml = require("node-xml-lite");
     var fs = require("fs");
     var path = require("path");
     
     var svg = xml.parseFileSync(svgFilePath);
+    //console.log(svg);
+    
+    if(arguments.length == 1) {
+        vectorDrawablePath = arguments[0].replace(/.svg$/i, '.xml');
+        debugMode = false;
+    }
+    if(arguments.length == 2 && typeof(arguments[1]) == 'boolean') {
+        debugMode = arguments[1];
+        vectorDrawablePath = arguments[0].replace(/.svg$/i, '.xml');
+    }
+    
 
     // Default
     var width = 24;
@@ -56,109 +68,122 @@ exports.convert = function(svgFilePath, vectorDrawablePath) {
     android:viewportHeight="' + viewportHeight + '">\n\
 ';
 
-    function travel(obj, levelIndex) {
-        levelIndex ++;
-        for(var i = 0; i < obj.length; i ++) {
+    function travel(obj, indent) {
+        indent ++;
 
-            // g = group
-            // path = path
-            if(obj[i].name == 'g') {
-                if(hasArrtib(obj[i].attrib, 'id')) {
-                    vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<group android:name="' + obj[i].attrib.id + '">\n';
-                } else {
-                    vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<group>\n';
+        try{
+            for(var i = 0; i < obj.length; i ++) {
+
+                // g = group
+                // path = path
+                if(obj[i].name == 'g') {
+                    if(hasArrtib(obj[i].attrib, 'id')) {
+                        vectorDrawableXML += repeatString(' ', indent) + '<group android:name="' + obj[i].attrib.id + '">\n';
+                    } else {
+                        vectorDrawableXML += repeatString(' ', indent) + '<group>\n';
+                    }
+                    travel(obj[i].childs, indent);
+                    vectorDrawableXML += repeatString(' ', indent) + '</group>\n';
+                } else if(/(path|rect|circle|polygon|polyline|ellipse)/i.test(obj[i].name)) {
+                    vectorDrawableXML += repeatString(' ', indent) + '<path\n';
+
+                    // id = name
+                    // d = pathData
+                    // fill = fillColor 
+                    // opacity = fillAlpha
+                    // stroke = strokeColor
+                    // stroke-opacity = strokeAlpha
+                    // stroke-width = strokeWidth
+                    // stroke-linejoin = strokeLineJoin
+                    // stroke-miterlimit = strokeMiterLimit
+                    // stroke-linecap = strokeLineCap
+
+                    // Sketch/Illustrator SVG files use shapes name for id attribute.
+                    if(hasArrtib(obj[i].attrib, 'id')){
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:name="' + obj[i].attrib.id + '"\n';
+                    }
+
+                    // FillColor
+                    if(hasArrtib(obj[i].attrib, 'fill')) {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + getArrtibValue(obj[i].attrib, 'fill') + '"\n'
+                    } else {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="#000"\n'
+                    }
+
+                    // FillAlpha
+                    if(hasArrtib(obj[i].attrib, 'opacity')) {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillAlpha="' + (Number(getArrtibValue(obj[i].attrib, 'opacity'))/100) + '"\n'
+                    }
+
+                    // Path data
+                    var d = '';
+
+                    if(/(rect)/i.test(obj[i].name)) {
+                        var x = obj[i].attrib.x ? parseFloat(obj[i].attrib.x) : 0;
+                        var y = obj[i].attrib.y ? parseFloat(obj[i].attrib.y) : 0;
+                        var width = parseFloat(obj[i].attrib.width);
+                        var height = parseFloat(obj[i].attrib.height);
+                        var rx = obj[i].attrib.rx ? parseFloat(obj[i].attrib.rx) : 0;
+                        var ry = obj[i].attrib.ry ? parseFloat(obj[i].attrib.ry) : 0;
+
+                        if(ry == 0) {
+                            ry = rx;
+                        } else if(rx == 0) {
+                            rx = ry;
+                        }
+
+                        d = rectToPath(x, y, width, height, rx, ry);
+
+                    } else if(/(circle)/i.test(obj[i].name)) {
+                        var cx = obj[i].attrib.cx ? parseFloat(obj[i].attrib.cx) : 0;
+                        var cy = obj[i].attrib.cy ? parseFloat(obj[i].attrib.cy) : 0;
+                        var r = parseFloat(obj[i].attrib.r);
+                        d = circleToPath(cx, cy, r);
+                    } else if(/(polygon|polyline)/i.test(obj[i].name)) {
+                        d = polygonToPath(obj[i].attrib.points);
+                    } else if(/(ellipse)/i.test(obj[i].name)) {
+                        var cx = obj[i].attrib.cx ? parseFloat(obj[i].attrib.cx) : 0;
+                        var cy = obj[i].attrib.cy ? parseFloat(obj[i].attrib.cy) : 0;
+                        var rx = obj[i].attrib.rx ? parseFloat(obj[i].attrib.rx) : 0;
+                        var ry = obj[i].attrib.ry ? parseFloat(obj[i].attrib.ry) : 0;
+                        d = ellipseToPath(cx, cy, rx, ry);
+                    } else {
+                        d = obj[i].attrib.d;
+                    }
+
+                    vectorDrawableXML += repeatString(' ', indent) + '    android:pathData="' + d + '"/>\n';
                 }
-                travel(obj[i].childs, levelIndex);
-                vectorDrawableXML += repeatString(' ', levelIndex * 1) + '</group>\n';
-            } else if(/(path|rect|circle|polygon|ellipse)/i.test(obj[i].name)) {
-                vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<path\n';
-
-                // id = name
-                // d = pathData
-                // fill = fillColor 
-                // opacity = fillAlpha
-                // stroke = strokeColor
-                // stroke-opacity = strokeAlpha
-                // stroke-width = strokeWidth
-                // stroke-linejoin = strokeLineJoin
-                // stroke-miterlimit = strokeMiterLimit
-                // stroke-linecap = strokeLineCap
-
-                // Sketch/Illustrator SVG files use shapes name for id attribute.
-                if(hasArrtib(obj[i].attrib, 'id')){
-                    vectorDrawableXML += repeatString(' ', levelIndex * 1) + 'android:name="' + obj[i].attrib.id + '"\n';
-                }
-
-                // FillColor
-                if(hasArrtib(obj[i].attrib, 'fill')) {
-                    vectorDrawableXML += repeatString(' ', levelIndex * 2) + 'android:fillColor="' + getArrtibValue(obj[i].attrib, 'fill') + '"\n'
-                } else {
-                    vectorDrawableXML += repeatString(' ', levelIndex * 2) + 'android:fillColor="#000"\n'
-                }
-
-                // FillAlpha
-                if(hasArrtib(obj[i].attrib, 'opacity')) {
-                    vectorDrawableXML += repeatString(' ', levelIndex * 2) + 'android:fillAlpha="' + (Number(getArrtibValue(obj[i].attrib, 'opacity'))/100) + '"\n'
-                }
-
-                // Path data
-                var d = '';
-
-                if(/(rect)/i.test(obj[i].name)) {
-                    var x = obj[i].attrib.x ? obj[i].attrib.x : 0;
-                    var y = obj[i].attrib.y ? obj[i].attrib.y : 0;
-                    d = rectToPath(x, y, obj[i].attrib.width, obj[i].attrib.height);;
-                } else if(/(circle)/i.test(obj[i].name)) {
-                    var cx = obj[i].attrib.cx ? obj[i].attrib.cx : 0;
-                    var cy = obj[i].attrib.cy ? obj[i].attrib.cy : 0;
-                    d = circleToPath(cx, cy, obj[i].attrib.r);
-                } else if(/(polygon)/i.test(obj[i].name)) {
-                    d = polygonToPath(obj[i].attrib.points);
-                } else {
-                    d = obj[i].attrib.d;
-                }
-                /*
-                else if(/(ellipse)/i.test(obj[i].name)) {
-                    d = ellipseToPath(obj[i].attrib.cx, obj[i].attrib.cy, obj[i].attrib.rx, obj[i].attrib.ry);
-                }
-                */
-
-                vectorDrawableXML += repeatString(' ', levelIndex * 2) + 'android:pathData="' + d + '"/>\n';
-
             }
-
-            if(/(ellipse)/i.test(obj[i].name)) {
-                vectorDrawableXML += repeatString(' ', levelIndex * 1) + '<!-- SVG file include unsupport <ellipse> tag. -->\n';
-                errorInfo += 'SVG file include unsupport <ellipse> tag.\n'
-            }
-        }
+        } catch(e) {}
     }
 
     travel(svg.childs, 0);
 
     vectorDrawableXML += '</vector>';
 
-    //console.log(svg);
-    //console.log('---------------------------------------------------------');
-    //console.log(vectorDrawableXML);
-    
-    
-    // Write vectorDrawable XML file
-    if(fs.existsSync(path.dirname(vectorDrawablePath)) == false) {
-        fs.mkdir(path.dirname(vectorDrawablePath), function(err) {
-            if (err) throw err;
-        });
-    }
-    
-    fs.writeFile(vectorDrawablePath, vectorDrawableXML, function(err) {
-        if (err) throw err;
-        console.log('Save success! --> ' + vectorDrawablePath);
-        if(errorInfo != '') {
-            console.log(errorInfo);
+    if(debugMode == true) {
+        console.log(svg);
+        console.log('---------------------------------------------------------');
+        console.log(vectorDrawableXML);
+    } else {
+        
+        // Write vectorDrawable XML file
+        if(fs.existsSync(path.dirname(vectorDrawablePath)) == false) {
+            fs.mkdir(path.dirname(vectorDrawablePath), function(err) {
+                if (err) throw err;
+            });
         }
-    });
-    
-    
+
+        fs.writeFile(vectorDrawablePath, vectorDrawableXML, function(err) {
+            if (err) throw err;
+            console.log('Save success! --> ' + vectorDrawablePath);
+            if(errorInfo != '') {
+                console.log(errorInfo);
+            }
+        });
+        
+        //console.log(svgFilePath + '-> ' + vectorDrawablePath + '(' + debugMode + ')');
+    }
 
     function repeatString(str, num) {
         var t = '';
@@ -236,42 +261,51 @@ exports.convert = function(svgFilePath, vectorDrawablePath) {
         }
     }
 
-    function rectToPath(x, y, width, height) {
-        var d = 'M';
-            d += x + ',' + y + 'L';
-            d += (Number(x)+Number(width)) + ',' + y + 'L';
-            d += (Number(x)+Number(width)) + ',' + (Number(y)+Number(height)) + 'L';
-            d += x + ',' + (Number(y)+Number(height)) + 'z';
+    
+    
+    function rectToPath(x, y, width, height, rx, ry) {
+        var d = '';
+        if(rx == 0 && ry == 0) {
+            d = 'M' + x + ',' + y + 'L' + (x+width) + ',' + y + 'L' + (x+width) + ',' + (y+height) + 'L' + x + ',' + (y+height) + 'z';
+        } else {
+            d = 'M' + (x + rx) + ',' + y + ',' +
+                'L' + (x + width - rx) + ',' + y + ',' +
+                'Q' + (x + width) + ',' + y + ',' + (x + width) + ',' + (y + ry) + ',' +
+                'L' + (x + width) + ',' + (y + height - ry) + ',' +
+                'Q' + (x + width) + ',' + (y + height) + ',' + (x + width - rx) + ',' + (y + height) + ',' +
+                'L' + (x + rx) + ',' + (y + height) + ',' +
+                'Q' + x + ',' + (y + height) + ',' + x + ',' + (y + height - ry) + ',' +
+                'L' + x + ',' + (y + ry) + ',' +
+                'Q' + x + ',' + y + ',' + (x + rx) + ',' + y + 'z';
+        }
         return d;
     }
 
     function polygonToPath(points) {
-        var d = 'M';
-            d += points.replace(/\s+/g, 'L');
+        var d = 'M' + points.replace(/\s+/g, 'L');
             if(/L$/.test(d)) {
                 d.substring(0, d.length-1);
             }
-            d += 'Z';
+            d += 'z';
         return d;
     }
 
     function circleToPath(cx, cy, r) {
-        var d = 'M' + (Number(cx)-Number(r)) + ',' + cy;
-            //"A rx,ry xAxisRotate LargeArcFlag,SweepFlag x,y".
-            d += 'a' + r + ',' + r + ' 0 0,1 ' + Number(r)*2 + ',0';
-            d += 'a' + r + ',' + r + ' 0 0,1 -' + Number(r)*2 + ',0z';
+        //"A rx,ry xAxisRotate LargeArcFlag,SweepFlag x,y".
+        var d = 'M' + (cx-r) + ',' + cy +
+                'a' + r + ',' + r + ' 0 0,1 ' + r*2 + ',0' +
+                'a' + r + ',' + r + ' 0 0,1 -' + r*2 + ',0z';
         return d;
     }
 
     function ellipseToPath(cx, cy, rx, ry) {
-        var d = 'M0,0L' + (Number(cx)+Number(rx)) + ',0L' + (Number(cx)+Number(rx)) + ',' + (Number(cy)+Number(ry)) + 'L0,' + (Number(cy)+Number(ry)) + 'z';
-        // M0,0L40,0L40,32L0,32z
-        //<ellipse cx="20" cy="16" rx="20" ry="16"/>
-        //<path d="M20,0
-        //c11.05,0,20,7.16,20,16
-        //s-8.95,16-20,16
-        //S0,24.84,0,16
-        //S8.95,0,20,0z"/>
+        var controlDistanceX = rx * 0.5522847498307935;
+        var controlDistanceY = ry * 0.5522847498307935;
+        var d = 'M' + cx + "," + (cy - ry) + "," +
+                "C" + (cx + controlDistanceX).toFixed(2) + "," + (cy - ry) + ',' + (cx + rx) + ',' + (cy - controlDistanceY).toFixed(2) + ',' + (cx + rx) + ',' + cy + ',' +
+                "C" + (cx + rx) + ',' + (cy + controlDistanceY).toFixed(2) + ',' + (cx + controlDistanceX).toFixed(2) + ',' + (cy + ry) + ','  + cx + ',' + (cy + ry) + ',' +
+                "C" + (cx - controlDistanceX).toFixed(2) + ',' + (cy + ry) + ',' + (cx - rx) + ',' + (cy + controlDistanceY).toFixed(2) + ',' + (cx - rx) + ',' + cy + ',' +
+                "C" + (cx - rx) + ',' + (cy - controlDistanceY).toFixed(2) + ',' + (cx - controlDistanceX).toFixed(2) + ',' + (cy - ry) + ',' + cx + ',' + (cy - ry) + 'z';
         return d;
     }
     
