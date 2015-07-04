@@ -1,12 +1,13 @@
 
 
-
+var DEBUG_MODE = false;
 
 /*
  * String: svgFilePath '/c/vector.svg'
  * String: vectorDrawablePath  '/c/vectorDrawable.xml'
+ * String: density (ldpi|mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi)
  */
-exports.convert = function(svgFilePath, vectorDrawablePath, debugMode) {
+exports.convert = function(svgFilePath, vectorDrawablePath, density) {
 
     var xml = require("node-xml-lite");
     var fs = require("fs");
