@@ -3,8 +3,7 @@
     "version": "0.0.1",
     "description": "Convert SVG file to Android vector drawable XML file.",
     "bin": {
-        "svg2drawable" : "svg2drawable_cli.js",
-        "drawable2svg" : "drawable2svg_cli.js"
+        "svg2drawable" : "svg2drawable_cli.js"
     },
     "keywords": [
         "xml", "svg", "Android", "vectorDrawble"
