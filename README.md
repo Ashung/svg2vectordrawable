@@ -14,12 +14,12 @@
 
 4,  Convert one file.
     
-    svg2drawable 'icon.svg'
+    svg2drawable icon.svg
 
-    svg2drawable 'icon.svg' 'icon.xml'
+    svg2drawable icon.svg icon.xml
 
 Convert svg files in folder.
 
-    svg2drawable 'asset'
+    svg2drawable assets
 
-    svg2drawable 'asset' 'res/drawable'
+    svg2drawable assets res/drawable

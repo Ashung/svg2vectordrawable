@@ -2,8 +2,9 @@
   <defs>
     <style>
 
-      .cls-3 {
+      svg g circle.cls-3 {
         fill: #ffea00;
+        fill-opacity:1;
       }
 
       .cls-4 {
