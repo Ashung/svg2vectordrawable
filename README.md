@@ -27,6 +27,7 @@ Command-line tools for convert SVG to Android vector drawable.
 
     $ s2v icon.svg icon.xml xhdpi "javascript"
 
+
 5, Convert svg files in folder.
 
     $ s2v assets/svg res/drawable
