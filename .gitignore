@@ -1,2 +1,5 @@
 /npm-debug.log
 /node_modules
+/test/drawable2svg.js
+/test/drawable2svg_cli.js
+/doc
