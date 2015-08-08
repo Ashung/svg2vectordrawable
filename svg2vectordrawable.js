@@ -1,4 +1,20 @@
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright [2015] [Ashung Hung ashung.hung@gmail.com]
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 var xml = require('node-xml-lite');
 var fs = require('fs');
@@ -9,7 +25,7 @@ var path = require('path');
 // density: ldpi|mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi|nodpi|[number]
 
 function svg2vectorDrawableContent(svgContent, density) {
-    
+
     var svg = xml.parseString(svgContent);
     var style = getStyle(svg.childs);
 
@@ -42,16 +58,16 @@ function svg2vectorDrawableContent(svgContent, density) {
             viewportHeight = parseInt(svg.attrib.height);
         }
     }
-    
+
     if(density == undefined) {
         density = 'nodpi';
     }
-    
+
     width = Math.ceil(width/densityToRatio(density));
     height = Math.ceil(height/densityToRatio(density));
-    
+
     // XML code
-    var vectorDrawableXML = 
+    var vectorDrawableXML =
 '\
 <?xml version="1.0" encoding="utf-8"?>\n\
 <vector xmlns:android="http://schemas.android.com/apk/res/android"\n\
@@ -62,12 +78,12 @@ function svg2vectorDrawableContent(svgContent, density) {
 ';
 
     function travel(obj, indent) {
-        
+
         indent ++;
 
         try{
             for(var i = 0; i < obj.length; i ++) {
-                
+
                 // g -> group
                 if(obj[i].name == 'g') {
                     vectorDrawableXML += repeatString(' ', indent) + '<group>\n';
@@ -81,7 +97,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                     var opacity = 1;
                     var fillColor = '#000000';
                     var opactiyHex = 'FF';
-                    
+
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'fill', style)) {
                             fill = getValueFromStyle('.' + obj[i].attrib.class, 'fill', style);
@@ -90,7 +106,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                             opacity = getValueFromStyle('.' + obj[i].attrib.class, 'opacity', style);
                         }
                     }
-                    
+
                     if(hasArrtib(obj[i].attrib, 'style')) {
                         if(getValueFromStyleInline('fill', getStyleInline(obj[i].attrib))) {
                             fill = getValueFromStyleInline('fill', getStyleInline(obj[i].attrib));
@@ -99,16 +115,16 @@ function svg2vectorDrawableContent(svgContent, density) {
                             opacity = getValueFromStyleInline('opacity', getStyleInline(obj[i].attrib));
                         }
                     }
-                    
+
                     if(hasArrtib(obj[i].attrib, 'fill')) {
                         fill = obj[i].attrib['fill'];
                     }
                     if(hasArrtib(obj[i].attrib, 'opacity')) {
                         opacity = obj[i].attrib['opacity'];
                     }
-                    
+
                     fill = formatColor(fill);
-                    
+
                     if(opacity != 1) {
                         opactiyHex = precentToHex(opacity * 100);
                         // #AARRGGBB
@@ -117,11 +133,11 @@ function svg2vectorDrawableContent(svgContent, density) {
                         // #RRGGBB
                         fillColor = fill;
                     }
-                    
+
                     vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + fillColor + '"\n';
                     //console.log(obj[i].name + '->' + fillColor + ', ' + opacity);
-                    
-                    // 
+
+                    //
                     // TODO: stroke, stroke-opacity = strokeColor
                     // TODO: stroke-width = strokeWidth
                     // TODO: stroke-linejoin = strokeLineJoin
@@ -131,7 +147,7 @@ function svg2vectorDrawableContent(svgContent, density) {
 
                     // d -> pathData
                     var d = '';
-                    
+
                     if(/(rect)/i.test(obj[i].name)) {
                         var x = obj[i].attrib.x ? parseFloat(obj[i].attrib.x) : 0;
                         var y = obj[i].attrib.y ? parseFloat(obj[i].attrib.y) : 0;
@@ -161,7 +177,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                     } else {
                         d = obj[i].attrib.d;
                     }
-                    
+
                     vectorDrawableXML += repeatString(' ', indent) + '    android:pathData="' + d + '"/>\n';
 
                 }
@@ -172,7 +188,7 @@ function svg2vectorDrawableContent(svgContent, density) {
     travel(svg.childs, 0);
 
     vectorDrawableXML += '</vector>';
-    
+
     return vectorDrawableXML;
 
 }
@@ -213,7 +229,7 @@ function createFile(filePath, fileContent, debugMode) {
         console.log('──────────────────────────────────────────────────────────');
     }
 }
-    
+
 function mkdir(localPath) {
     var dirs = localPath.split('/');
     var currentDir = '';
@@ -225,7 +241,7 @@ function mkdir(localPath) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////
 // Android
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -755,7 +771,7 @@ function svgColorKeywordsToHex(keyword) {
     return hex;
 }
 
-///////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////
 // Get SVG Arrituble
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -831,7 +847,7 @@ function getValueFromStyleInline(property, styleString) {
     return r;
 }
 
-///////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////
 // Path data convert
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -881,7 +897,7 @@ function ellipseToPath(cx, cy, rx, ry) {
     return d;
 }
 
-///////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////
 // Export Moudle
 ///////////////////////////////////////////////////////////////////////////////
 
