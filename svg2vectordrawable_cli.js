@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright [2015] [Ashung Hung ashung.hung@gmail.com]
@@ -16,7 +18,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#! /usr/bin/env node
 
 var banner = '\
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐\n\
@@ -29,7 +30,7 @@ var banner = '\
 │  $ s2v icon.svg res/drawable/icon.xml                                                            │\n\
 │  $ s2v icon.svg res/drawable/icon.xml xhdpi                                                      │\n\
 │  $ s2v icon.svg res/drawable/icon.xml 320                                                        │\n\
-│  $ s2v icon.svg icon.xml "replace(/<rect\\s+width=\\"\\d+\\"\\s+height=\\"\d+\\"\\/>/g,"")"              │\n\
+│  $ s2v icon.svg icon.xml "replace(/<rect\\s+width=\\"\\d+\\"\\s+height=\\"\d+\\"\\/>/g,"")"               │\n\
 │  $ s2v icon.svg icon.xml xhdpi "javascript"                                                      │\n\
 │  $ s2v assets/svg res/drawable                                                                   │\n\
 │  $ s2v assets/svg res/drawable xhdpi "javascript"                                                │\n\
@@ -49,7 +50,7 @@ if(args.length > 1) {
 
             var svgFile = args[0];
             var vectorDrawableFile = args[1];
-            var density = args[2];
+            var density = args[2] ? args[2] : 'nodpi';
             var runScript = args[3];
 
             if(args.length == 3 &&
@@ -59,7 +60,7 @@ if(args.length > 1) {
                 runScript = args[2];
             }
 
-            console.log(svgFile + ', ' + vectorDrawableFile + ', ' + density + ', ' + runScript);
+            // console.log(svgFile + ', ' + vectorDrawableFile + ', ' + density + ', ' + runScript);
 
             var svgContent = $.getFileContent(svgFile, runScript);
             var vectorDrawableContent = $.svg2vectorDrawableContent(svgContent, density);

@@ -21,7 +21,7 @@
         "svg2android"
     ],
     "dependencies": {
-        "node-xml-lite": "0.0.3"
+        "node-xml-lite": ">=0.0.5"
     },
     "homepage": "https://github.com/Ashung/svg2vectordrawable",
     "repository": {

@@ -6,7 +6,7 @@
 
 * Adobe Illustrator 用户推荐使用[Illustrator SVG Exporter](https://github.com/iconic/illustrator-svg-exporter)或者[Layer Exporter](https://github.com/davidderaedt/Illustrator-Layer-Exporter)。
 * Adobe PhotoShop CC 2014+ 用户推荐使用[Generate Assets](https://github.com/adobe-photoshop/generator-assets/wiki/Generate-Web-Assets-Functional-Spec)。
-* Sketch 使用自带的切片或图层导出，多色图案不建议使用画板，或者使用[Sketch Generator](https://github.com/bomberstudios/sketch-generator)。
+* Sketch 使用自带的切片或图层导出，多色图案不建议使用画板。
 
 ### 如何使用SVG2VectorDrawable
 
@@ -74,7 +74,7 @@ Command-line tools for convert SVG to Android vector drawable.
 
 * Use [Illustrator SVG Exporter](https://github.com/iconic/illustrator-svg-exporter) or [Layer Exporter](https://github.com/davidderaedt/Illustrator-Layer-Exporter) for Adobe Illustrator.
 * Use [Generate Assets](https://github.com/adobe-photoshop/generator-assets/wiki/Generate-Web-Assets-Functional-Spec) for Adobe PhotoShop CC 2014+.
-* Use [Sketch Generator](https://github.com/bomberstudios/sketch-generator) for Sketch
+* Use Sketch export group or slice.
 
 ### How to use SVG2VectorDrawable
 
