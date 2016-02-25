@@ -831,6 +831,9 @@ function getValueFromStyle(selectors, property, styleString) {
             .replace(RegExp(property + ':'), '');
         r = r.substring(0, r.indexOf(';'));
     } catch (e) {}
+    if(/^\.\d+/.test(r)) {
+        r = Number(r);
+    }
     return r;
 }
 
@@ -844,6 +847,9 @@ function getValueFromStyleInline(property, styleString) {
             .replace(RegExp(property + ':'), '');
         r = r.substring(0, r.indexOf(';'));
     } catch (e) {}
+    if(/^\.\d+/.test(r)) {
+        r = Number(r);
+    }
     return r;
 }
 

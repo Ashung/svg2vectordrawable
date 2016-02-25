@@ -65,7 +65,7 @@ $ s2v icon.svg icon.xml "replace(/<rect fill=\"none\" width=\"24\" height=\"24\"
 从SVG代码中删除 `<g>` 标签：
 
 ```
-$ s2v icon.svg icon.xml "replace(/<g.*>/g,'').replace(/<\/g>/g,'')"
+$ s2v icon.svg icon.xml "replace(/<g[^>]*>/gi,'').replace(/<\/g>/gi,'')"
 ```
 
 转化指定文件内的SVG文件：
@@ -79,19 +79,19 @@ $ s2v assets/svg res/drawable
 删除带`fill="none"`属性的`<path>`标签，可用于Illustrator生成的SVG。
 
 ```
-$ s2v svg xml "replace(/<path.*fill=\"none\".*\/>/,'')"
+$ s2v svg xml "replace(/<path.*fill=\"none\"[^>]*/>/gi,'')"
 ```
 
 删除带`class="cls-1"`属性的`<path>`标签，图层组内最底层的图层，可用于Photoshop生成的SVG。
 
 ```
-$ s2v svg xml "replace(/<path.*class=\"cls-1\"\/>/,'')"
+$ s2v svg xml "replace(/<[rect|path].*class=\"cls-1\"[^>]*/>/gi,'')"
 ```
 
 删除带有某个颜色填充的`<path>`标签及多余`<g>`标签, 可用于Sketch生成的SVG。
 
 ```
-$ s2v svg xml "replace(/<path.*fill=\"#FFFFFF\".*><\/path>/,'').replace(/<g.*>/g,'').replace(/<\/g>/g,'')"
+$ s2v svg xml "replace(/<path.*fill=\"#FFFFFF\".*><\/path>/,'').replace(/<g[^>]*>/gi,'').replace(/<\/g>/gi,'')"
 ```
 
 
@@ -165,7 +165,7 @@ $ s2v icon.svg icon.xml "replace(/<rect fill=\"none\" width=\"24\" height=\"24\"
 Remove the `<g>` tag from SVG.
 
 ```
-$ s2v icon.svg icon.xml "replace(/<g.*>/g,'').replace(/<\/g>/g,'')"
+$ s2v icon.svg icon.xml "replace(/<g[^>]*>/gi,'').replace(/<\/g>/gi,'')"
 ```
 
 Convert svg files in a folder.
@@ -179,19 +179,19 @@ $ s2v assets/svg res/drawable
 Remove the `<path>` tag with `fill="none"` property，use for SVG export from Illustrator.
 
 ```
-$ s2v svg xml "replace(/<path.*fill=\"none\".*\/>/,'')"
+$ s2v svg xml "replace(/<path.*fill=\"none\"[^>]*/>/gi,'')"
 ```
 
 Remove the `<path>` tag with `class="cls-1"` property，allways the bottom layer in the layer group，use for SVG export from Photoshop.
 
 ```
-$ s2v svg xml "replace(/<path.*class=\"cls-1\"\/>/,'')"
+$ s2v svg xml "replace(/<[rect|path].*class=\"cls-1\"[^>]*/>/gi,'')"
 ```
 
 Remove the `<path>` tag with special color and extra `<g>` tags, use for SVG export from Sketch.
 
 ```
-$ s2v svg xml "replace(/<path.*fill=\"#FFFFFF\".*><\/path>/,'').replace(/<g.*>/g,'').replace(/<\/g>/g,'')"
+$ s2v svg xml "replace(/<path.*fill=\"#FFFFFF\".*><\/path>/,'').replace(/<g[^>]*>/gi,'').replace(/<\/g>/gi,'')"
 ```
 
 ### License
