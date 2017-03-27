@@ -1,21 +1,28 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright [2015] [Ashung Hung ashung.hung@gmail.com]
+// Copyright 2017 Ashung Hung (ashung.hung@gmail.com)
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy 
+// of this software and associated documentation files (the "Software"), to deal 
+// in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is 
+// furnished to do so, subject to the following conditions:
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+// DEALINGS IN THE SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+// https://github.com/hgourvest/node-xml-lite
 var xml = require('node-xml-lite');
 var fs = require('fs');
 var path = require('path');
@@ -25,15 +32,15 @@ var path = require('path');
 // density: ldpi|mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi|nodpi|[number]
 
 function svg2vectorDrawableContent(svgContent, density) {
-
+    
     var svg = xml.parseString(svgContent);
     var style = getStyle(svg.childs);
 
     // Get width & height
-    var width = 1000;
-    var height = 1000;
-    var viewportWidth = 1000;
-    var viewportHeight = 1000;
+    var width = 24;
+    var height = 24;
+    var viewportWidth = 24;
+    var viewportHeight = 24;
 
     if(hasArrtib(svg.attrib, 'width')) {
         width = parseInt(svg.attrib.width);
@@ -92,7 +99,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                 } else if(/(path|rect|circle|polygon|polyline|line|ellipse)/i.test(obj[i].name)) {
                     vectorDrawableXML += repeatString(' ', indent) + '<path\n';
 
-                    // fill, opacity -> fillColor
+                    // fill, opacity -> android:fillColor
                     var fill = '#000000';
                     var opacity = 1;
                     var fillColor = '#000000';
@@ -135,17 +142,84 @@ function svg2vectorDrawableContent(svgContent, density) {
                     }
 
                     vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + fillColor + '"\n';
-                    //console.log(obj[i].name + '->' + fillColor + ', ' + opacity);
+                    
+                    // stroke -> android:strokeColor
+                    var stroke = '';
+                    
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke', style)) {
+                            stroke = getValueFromStyle('.' + obj[i].attrib.class, 'stroke', style);
+                        }
+                    }
 
-                    //
-                    // TODO: stroke, stroke-opacity = strokeColor
-                    // TODO: stroke-width = strokeWidth
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('stroke', getStyleInline(obj[i].attrib))) {
+                            stroke = getValueFromStyleInline('stroke', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'stroke')) {
+                        stroke = obj[i].attrib['stroke'];
+                    }
+                    
+                    if(stroke != '') {
+                        stroke = formatColor(stroke);
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeColor="' + stroke + '"\n';
+                    }
+                    
+                    // stroke-opacity -> android:strokeAlpha
+                    var strokeAlpha = '';
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-opacity', style)) {
+                            strokeAlpha = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-opacity', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('stroke-opacity', getStyleInline(obj[i].attrib))) {
+                            strokeAlpha = getValueFromStyleInline('stroke-opacity', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'stroke-opacity')) {
+                        strokeAlpha = obj[i].attrib['stroke-opacity'];
+                    }
+
+                    if(strokeAlpha != '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeAlpha="' + strokeAlpha + '"\n';
+                    }
+                    
+                    // stroke-width -> android:strokeWidth
+                    var strokeWidth = '';
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-width', style)) {
+                            strokeWidth = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-width', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('stroke-width', getStyleInline(obj[i].attrib))) {
+                            strokeWidth = getValueFromStyleInline('stroke-width', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'stroke-width')) {
+                        strokeWidth = obj[i].attrib['stroke-width'];
+                    }
+
+                    if(strokeWidth != '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="' + strokeWidth + '"\n';
+                    }
+                    
                     // TODO: stroke-linejoin = strokeLineJoin
                     // TODO: stroke-miterlimit = strokeMiterLimit
                     // TODO: stroke-linecap = strokeLineCap
+                    // TODO: fill-rule = fillType
 
 
-                    // d -> pathData
+                    // d -> android:pathData
                     var d = '';
 
                     if(/(rect)/i.test(obj[i].name)) {
@@ -823,8 +897,8 @@ function getValueFromStyle(selectors, property, styleString) {
         r = styleString
             .replace(/\s{2,}/g, '')
             .replace(/[\n|\r|\t]/g, '')
-            .replace(/}/g, '}\n')
-            .replace(/\s?{\s?/g, '{')
+            .replace(/\}/g, '}\n')
+            .replace(/\s?\{\s?/g, '{')
             .replace(/\s?:\s?/g, ':')
             .match(RegExp(selectors + '{.*}'))[0]
             .match(RegExp(property + ':.*'))[0]

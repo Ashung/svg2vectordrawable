@@ -1,7 +1,7 @@
 
 var $ = require("../svg2vectordrawable.js");
 
-var filePath = __dirname + '/svg/android.svg';
+var filePath = __dirname + '/svg/adb.svg';
 
 console.log(
     '──────────SVG──────────\n' +
@@ -10,5 +10,5 @@ console.log(
 
 console.log(
     '──────────XML──────────\n' +
-    $.svg2vectorDrawableContent($.getFileContent(filePath), 'xhdpi')
+    $.svg2vectorDrawableContent($.getFileContent(filePath))
 );
