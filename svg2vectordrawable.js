@@ -379,7 +379,7 @@ function getFileContent(filePath, runScript) {
 // debugMode: true|false
 
 function createFile(filePath, fileContent, debugMode) {
-    if(debugMode == undefined || debugMode == true) {
+    if(debugMode == undefined || debugMode == false) {
         mkdir(path.dirname(filePath));
         fs.writeFileSync(filePath, fileContent);
     } else {
