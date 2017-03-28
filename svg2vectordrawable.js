@@ -213,11 +213,97 @@ function svg2vectorDrawableContent(svgContent, density) {
                         vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="' + strokeWidth + '"\n';
                     }
                     
-                    // TODO: stroke-linejoin = strokeLineJoin
-                    // TODO: stroke-miterlimit = strokeMiterLimit
-                    // TODO: stroke-linecap = strokeLineCap
-                    // TODO: fill-rule = fillType
+                    // stroke-linejoin -> android:strokeLineJoin
+                    var strokeLineJoin = '';
 
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linejoin', style)) {
+                            strokeLineJoin = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linejoin', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('stroke-linejoin', getStyleInline(obj[i].attrib))) {
+                            strokeLineJoin = getValueFromStyleInline('stroke-linejoin', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'stroke-linejoin')) {
+                        strokeLineJoin = obj[i].attrib['stroke-linejoin'];
+                    }
+
+                    if(strokeLineJoin != '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeLineJoin="' + strokeLineJoin + '"\n';
+                    }
+                    
+                    // stroke-miterlimit -> android:strokeMiterLimit
+                    var strokeMiterLimit = '';
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-miterlimit', style)) {
+                            strokeMiterLimit = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-miterlimit', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('stroke-miterlimit', getStyleInline(obj[i].attrib))) {
+                            strokeMiterLimit = getValueFromStyleInline('stroke-miterlimit', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'stroke-miterlimit')) {
+                        strokeMiterLimit = obj[i].attrib['stroke-miterlimit'];
+                    }
+
+                    if(strokeMiterLimit != '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeMiterLimit="' + strokeMiterLimit + '"\n';
+                    }
+                    
+                    // stroke-linecap -> android:strokeLineCap
+                    var strokeLineCap = '';
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linecap', style)) {
+                            strokeLineCap = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linecap', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('stroke-linecap', getStyleInline(obj[i].attrib))) {
+                            strokeLineCap = getValueFromStyleInline('stroke-linecap', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'stroke-linecap')) {
+                        strokeLineCap = obj[i].attrib['stroke-linecap'];
+                    }
+
+                    if(strokeLineCap != '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeLineCap="' + strokeLineCap + '"\n';
+                    }
+                    
+                    // fill-rule -> android:fillType
+                    var fillType = '';
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'fill-rule', style)) {
+                            fillType = getValueFromStyle('.' + obj[i].attrib.class, 'fill-rule', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('fill-rule', getStyleInline(obj[i].attrib))) {
+                            fillType = getValueFromStyleInline('fill-rule', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'fill-rule')) {
+                        fillType = obj[i].attrib['fill-rule'];
+                    }
+
+                    if(fillType == 'evenOdd') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillType="' + fillType + '"\n';
+                    }
 
                     // d -> android:pathData
                     var d = '';
