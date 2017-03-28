@@ -1,35 +1,32 @@
 # SVG2VectorDrawable
 
-将SVG文件转化为Android vectordrawable的命令行工具。
+将 SVG 文件转化为 Android Vector Drawable 的 Node.js 模块和命令行工具。
 
-### 如何导出SVG
+## 在 Node.js 中使用
 
-* Adobe Illustrator 用户推荐使用[Illustrator SVG Exporter](https://github.com/iconic/illustrator-svg-exporter)或者[Layer Exporter](https://github.com/davidderaedt/Illustrator-Layer-Exporter)。
-* Sketch 使用自带的切片或图层导出。
+安装。
 
-### 如何使用SVG2VectorDrawable
-
-#### Step.1 安装node.js
-
-从官方网站([https://nodejs.org](https://nodejs.org/download/))下载并安装适用平台的安装包。
-
-#### Step.2 下载源码
-
-```
-$ git clone https://github.com/Ashung/svg2vectordrawable.git
+```bash
+$ npm install svg2vectordrawable --save
 ```
 
-或者下载[master.zip](https://github.com/iconic/illustrator-svg-exporter/archive/master.zip)并解压至指定目录下。
+示例。
 
-#### Step.3 安装SVG2VectorDrawable
+```javascript
+var s2v = require("svg2vectordrawable");
 
+console.log(s2v.svg2vectorDrawableContent(s2v.getFileContent("svg/file.svg")));
+
+s2v.svg2vectorDrawableFile("svg/file.svg", "drawable/file.xml");
 ```
-$ cd svg2vectordrawable
-$ npm install
-$ sudo npm link
-```
 
-#### Step.4 SVG2VectorDrawable语法
+## 在命令行中使用
+
+安装。
+
+```shell
+$ npm install svg2vectordrawable -g
+```
 
 显示帮助信息：
 
@@ -73,8 +70,6 @@ $ s2v icon.svg icon.xml "replace(/<g[^>]*>/gi,'').replace(/<\/g>/gi,'')"
 $ s2v assets/svg res/drawable
 ```
 
-#### 有用的命令
-
 删除带`fill="none"`属性的`<path>`标签，可用于Illustrator生成的SVG。
 
 ```
@@ -93,3 +88,6 @@ $ s2v svg xml "replace(/<[rect|path].*class=\"cls-1\"[^>]*/>/gi,'')"
 $ s2v svg xml "replace(/<path.*fill=\"#FFFFFF\".*><\/path>/,'').replace(/<g[^>]*>/gi,'').replace(/<\/g>/gi,'')"
 ```
 
+### 版权声明
+
+MIT

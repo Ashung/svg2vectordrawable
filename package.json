@@ -8,8 +8,9 @@
     "url": "http://github.com/Ashung"
   },
   "licence": "MIT",
+  "main": "./svg2vectordrawable.js",
   "bin": {
-    "s2v": "svg2vectordrawable_cli.js"
+    "s2v": "./svg2vectordrawable_cli.js"
   },
   "keywords": [
     "svg",
