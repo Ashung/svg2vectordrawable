@@ -72,7 +72,7 @@ if(args.length > 1) {
             var vectorDrawableContent = $.svg2vectorDrawableContent(svgContent, density);
 
             console.log(svgFile + ' -> ' + vectorDrawableFile + ' (' + density + ')');
-            $.createFile(vectorDrawableFile, vectorDrawableContent, true);
+            $.createFile(vectorDrawableFile, vectorDrawableContent, false);
 
         }
 
@@ -103,7 +103,7 @@ if(args.length > 1) {
                     var vectorDrawableContent = $.svg2vectorDrawableContent(svgContent, density);
 
                     console.log(svgFile + ' -> ' + vectorDrawableFile + ' (' + density + ')');
-                    $.createFile(vectorDrawableFile, vectorDrawableContent, true);
+                    $.createFile(vectorDrawableFile, vectorDrawableContent, false);
 
                 }
 
