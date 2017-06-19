@@ -121,5 +121,12 @@ if(args.length > 1) {
     }
 
 } else {
-    console.log(banner);
+
+    if(args[0] === '-V' || args[0] === '--version') {
+        var version = fs.readFileSync(path.join(__dirname, 'package.json')).toString();
+        console.log(JSON.parse(version).version);
+    } else {
+        console.log(banner);
+    }
+    
 }

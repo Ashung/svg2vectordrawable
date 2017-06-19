@@ -103,7 +103,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                     var fill = '#000000';
                     var opacity = 1;
                     var fillColor = '#000000';
-                    var opactiyHex = 'FF';
+                    var opacityHex = 'FF';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'fill', style)) {
@@ -133,15 +133,38 @@ function svg2vectorDrawableContent(svgContent, density) {
                     fill = formatColor(fill);
 
                     if(opacity != 1) {
-                        opactiyHex = precentToHex(opacity * 100);
+                        opacityHex = precentToHex(opacity * 100);
                         // #AARRGGBB
-                        fillColor = '#' + opactiyHex + fill.replace('#', '');
+                        fillColor = '#' + opacityHex + fill.replace('#', '');
                     } else {
                         // #RRGGBB
                         fillColor = fill;
                     }
 
                     vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + fillColor + '"\n';
+                    
+                    // fill-opacity -> android:fillAlpha
+                    var fillAlpha = '';
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'fill-opacity', style)) {
+                            fillAlpha = getValueFromStyle('.' + obj[i].attrib.class, 'fill-opacity', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('fill-opacity', getStyleInline(obj[i].attrib))) {
+                            fillAlpha = getValueFromStyleInline('fill-opacity', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'fill-opacity')) {
+                        fillAlpha = obj[i].attrib['fill-opacity'];
+                    }
+
+                    if(fillAlpha != '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillAlpha="' + fillAlpha + '"\n';
+                    }
                     
                     // stroke -> android:strokeColor
                     var stroke = '';
