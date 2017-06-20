@@ -66,7 +66,7 @@ function svg2vectorDrawableContent(svgContent, density) {
         }
     }
 
-    if(density == undefined) {
+    if(density === undefined) {
         density = 'nodpi';
     }
 
@@ -84,7 +84,7 @@ function svg2vectorDrawableContent(svgContent, density) {
     android:viewportHeight="' + viewportHeight + '">\n\
 ';
 
-    function travel(obj, indent) {
+    function travel(obj, indent, groupAttrs) {
 
         indent ++;
 
@@ -92,16 +92,119 @@ function svg2vectorDrawableContent(svgContent, density) {
             for(var i = 0; i < obj.length; i ++) {
 
                 // g -> group
-                if(obj[i].name == 'g') {
+                if(obj[i].name === 'g') {
+                    
+                    // Attributes in group
+                    groupAttrs = {};
+
+                    if(style && hasArrtib(obj[i].attrib, 'class')) {
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'fill', style)) {
+                            groupAttrs.fill = getValueFromStyle('.' + obj[i].attrib.class, 'fill', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'opacity', style)) {
+                            groupAttrs.opacity = getValueFromStyle('.' + obj[i].attrib.class, 'opacity', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'fill-opacity', style)) {
+                            groupAttrs.fillAlpha = getValueFromStyle('.' + obj[i].attrib.class, 'fill-opacity', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke', style)) {
+                            groupAttrs.stroke = getValueFromStyle('.' + obj[i].attrib.class, 'stroke', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-opacity', style)) {
+                            groupAttrs.strokeAlpha = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-opacity', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-width', style)) {
+                            groupAttrs.strokeWidth = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-width', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linejoin', style)) {
+                            groupAttrs.strokeLineJoin = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linejoin', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-miterlimit', style)) {
+                            groupAttrs.strokeMiterLimit = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-miterlimit', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linecap', style)) {
+                            groupAttrs.strokeLineCap = getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linecap', style);
+                        }
+                        if(getValueFromStyle('.' + obj[i].attrib.class, 'fill-rule', style)) {
+                            groupAttrs.fillType = getValueFromStyle('.' + obj[i].attrib.class, 'fill-rule', style);
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'style')) {
+                        if(getValueFromStyleInline('fill', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.fill = getValueFromStyleInline('fill', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('opacity', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.opacity = getValueFromStyleInline('opacity', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('fill-opacity', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.fillAlpha = getValueFromStyleInline('fill-opacity', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('stroke', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.stroke = getValueFromStyleInline('stroke', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('stroke-opacity', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.strokeAlpha = getValueFromStyleInline('stroke-opacity', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('stroke-width', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.strokeWidth = getValueFromStyleInline('stroke-width', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('stroke-linejoin', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.strokeLineJoin = getValueFromStyleInline('stroke-linejoin', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('stroke-miterlimit', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.strokeMiterLimit = getValueFromStyleInline('stroke-miterlimit', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('stroke-linecap', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.strokeLineCap = getValueFromStyleInline('stroke-linecap', getStyleInline(obj[i].attrib));
+                        }
+                        if(getValueFromStyleInline('fill-rule', getStyleInline(obj[i].attrib))) {
+                            groupAttrs.fillType = getValueFromStyleInline('fill-rule', getStyleInline(obj[i].attrib));
+                        }
+                    }
+
+                    if(hasArrtib(obj[i].attrib, 'fill')) {
+                        groupAttrs.fill = obj[i].attrib['fill'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'opacity')) {
+                        groupAttrs.opacity = obj[i].attrib['opacity'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'fill-opacity')) {
+                        groupAttrs.fillAlpha = obj[i].attrib['fill-opacity'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'stroke')) {
+                        groupAttrs.stroke = obj[i].attrib['stroke'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'stroke-opacity')) {
+                        groupAttrs.strokeAlpha = obj[i].attrib['stroke-opacity'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'stroke-width')) {
+                        groupAttrs.strokeWidth = obj[i].attrib['stroke-width'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'stroke-linejoin')) {
+                        groupAttrs.strokeLineJoin = obj[i].attrib['stroke-linejoin'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'stroke-miterlimit')) {
+                        groupAttrs.strokeMiterLimit = obj[i].attrib['stroke-miterlimit'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'stroke-linecap')) {
+                        groupAttrs.strokeLineCap = obj[i].attrib['stroke-linecap'];
+                    }
+                    if(hasArrtib(obj[i].attrib, 'fill-rule')) {
+                        groupAttrs.fillType = obj[i].attrib['fill-rule'];
+                    }
+                    
                     vectorDrawableXML += repeatString(' ', indent) + '<group>\n';
-                    travel(obj[i].childs, indent);
+                    travel(obj[i].childs, indent, groupAttrs);
                     vectorDrawableXML += repeatString(' ', indent) + '</group>\n';
+                    
                 } else if(/(path|rect|circle|polygon|polyline|line|ellipse)/i.test(obj[i].name)) {
+                    
                     vectorDrawableXML += repeatString(' ', indent) + '<path\n';
 
                     // fill, opacity -> android:fillColor
-                    var fill = '#000000';
-                    var opacity = 1;
+                    var fill = groupAttrs.fill || '#000000';
+                    var opacity = groupAttrs.opacity || 1;
                     var fillColor = '#000000';
                     var opacityHex = 'FF';
 
@@ -129,22 +232,22 @@ function svg2vectorDrawableContent(svgContent, density) {
                     if(hasArrtib(obj[i].attrib, 'opacity')) {
                         opacity = obj[i].attrib['opacity'];
                     }
-
-                    fill = formatColor(fill);
-
-                    if(opacity != 1) {
+                    
+                    if(opacity !== '' && Number(opacity) !== 1) {
                         opacityHex = precentToHex(opacity * 100);
                         // #AARRGGBB
                         fillColor = '#' + opacityHex + fill.replace('#', '');
+                    } else if (fill.toLowerCase() === "none") {
+                        fillColor = "#00000000";
                     } else {
                         // #RRGGBB
-                        fillColor = fill;
+                        fillColor = formatColor(fill);
                     }
 
                     vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + fillColor + '"\n';
                     
                     // fill-opacity -> android:fillAlpha
-                    var fillAlpha = '';
+                    var fillAlpha = groupAttrs.fillAlpha || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'fill-opacity', style)) {
@@ -162,12 +265,12 @@ function svg2vectorDrawableContent(svgContent, density) {
                         fillAlpha = obj[i].attrib['fill-opacity'];
                     }
 
-                    if(fillAlpha != '') {
+                    if(fillAlpha !== '' && Number(fillAlpha) !== 1) {
                         vectorDrawableXML += repeatString(' ', indent) + '    android:fillAlpha="' + fillAlpha + '"\n';
                     }
                     
                     // stroke -> android:strokeColor
-                    var stroke = '';
+                    var stroke = groupAttrs.stroke || '';
                     
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke', style)) {
@@ -185,13 +288,13 @@ function svg2vectorDrawableContent(svgContent, density) {
                         stroke = obj[i].attrib['stroke'];
                     }
                     
-                    if(stroke != '') {
+                    if(stroke !== '' && stroke !== 'none') {
                         stroke = formatColor(stroke);
                         vectorDrawableXML += repeatString(' ', indent) + '    android:strokeColor="' + stroke + '"\n';
                     }
                     
                     // stroke-opacity -> android:strokeAlpha
-                    var strokeAlpha = '';
+                    var strokeAlpha = groupAttrs.strokeAlpha || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-opacity', style)) {
@@ -209,12 +312,12 @@ function svg2vectorDrawableContent(svgContent, density) {
                         strokeAlpha = obj[i].attrib['stroke-opacity'];
                     }
 
-                    if(strokeAlpha != '') {
+                    if(strokeAlpha !== '' && (stroke !== '' && stroke !== 'none')) {
                         vectorDrawableXML += repeatString(' ', indent) + '    android:strokeAlpha="' + strokeAlpha + '"\n';
                     }
                     
                     // stroke-width -> android:strokeWidth
-                    var strokeWidth = '';
+                    var strokeWidth = groupAttrs.strokeWidth || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-width', style)) {
@@ -232,12 +335,16 @@ function svg2vectorDrawableContent(svgContent, density) {
                         strokeWidth = obj[i].attrib['stroke-width'];
                     }
 
-                    if(strokeWidth != '') {
-                        vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="' + strokeWidth + '"\n';
+                    if(stroke !== '' && stroke !== 'none') {
+                        if (strokeWidth === '') {
+                            vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="1dp"\n';
+                        } else {
+                            vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="' + strokeWidth + '"\n';
+                        }
                     }
                     
                     // stroke-linejoin -> android:strokeLineJoin
-                    var strokeLineJoin = '';
+                    var strokeLineJoin = groupAttrs.strokeLineJoin || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linejoin', style)) {
@@ -255,12 +362,12 @@ function svg2vectorDrawableContent(svgContent, density) {
                         strokeLineJoin = obj[i].attrib['stroke-linejoin'];
                     }
 
-                    if(strokeLineJoin != '') {
+                    if(strokeLineJoin !== '' && (stroke !== '' && stroke !== 'none')) {
                         vectorDrawableXML += repeatString(' ', indent) + '    android:strokeLineJoin="' + strokeLineJoin + '"\n';
                     }
                     
                     // stroke-miterlimit -> android:strokeMiterLimit
-                    var strokeMiterLimit = '';
+                    var strokeMiterLimit = groupAttrs.strokeMiterLimit || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-miterlimit', style)) {
@@ -278,12 +385,12 @@ function svg2vectorDrawableContent(svgContent, density) {
                         strokeMiterLimit = obj[i].attrib['stroke-miterlimit'];
                     }
 
-                    if(strokeMiterLimit != '') {
+                    if(strokeMiterLimit !== '' && (stroke !== '' && stroke !== 'none')) {
                         vectorDrawableXML += repeatString(' ', indent) + '    android:strokeMiterLimit="' + strokeMiterLimit + '"\n';
                     }
                     
                     // stroke-linecap -> android:strokeLineCap
-                    var strokeLineCap = '';
+                    var strokeLineCap = groupAttrs.strokeLineCap || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'stroke-linecap', style)) {
@@ -301,12 +408,12 @@ function svg2vectorDrawableContent(svgContent, density) {
                         strokeLineCap = obj[i].attrib['stroke-linecap'];
                     }
 
-                    if(strokeLineCap != '') {
+                    if(strokeLineCap !== '' && (stroke !== '' && stroke !== 'none')) {
                         vectorDrawableXML += repeatString(' ', indent) + '    android:strokeLineCap="' + strokeLineCap + '"\n';
                     }
                     
                     // fill-rule -> android:fillType
-                    var fillType = '';
+                    var fillType = groupAttrs.fillType || '';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
                         if(getValueFromStyle('.' + obj[i].attrib.class, 'fill-rule', style)) {
@@ -324,8 +431,8 @@ function svg2vectorDrawableContent(svgContent, density) {
                         fillType = obj[i].attrib['fill-rule'];
                     }
 
-                    if(fillType == 'evenOdd') {
-                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillType="' + fillType + '"\n';
+                    if(fillType === 'evenodd') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillType="evenOdd"\n';
                     }
 
                     // d -> android:pathData
@@ -338,9 +445,9 @@ function svg2vectorDrawableContent(svgContent, density) {
                         var height = parseFloat(obj[i].attrib.height);
                         var rx = obj[i].attrib.rx ? parseFloat(obj[i].attrib.rx) : 0;
                         var ry = obj[i].attrib.ry ? parseFloat(obj[i].attrib.ry) : 0;
-                        if(ry == 0) {
+                        if(ry === 0) {
                             ry = rx;
-                        } else if(rx == 0) {
+                        } else if(rx === 0) {
                             rx = ry;
                         }
                         d = rectToPath(x, y, width, height, rx, ry);
@@ -368,7 +475,7 @@ function svg2vectorDrawableContent(svgContent, density) {
         } catch(e) {}
     }
 
-    travel(svg.childs, 0);
+    travel(svg.childs, 0, {});
 
     vectorDrawableXML += '</vector>';
 
@@ -483,7 +590,7 @@ function formatColor(hexColor) {
         hexColor = '#' + precentToHex(rgbPercent[0]) + precentToHex(rgbPercent[1]) + precentToHex(rgbPercent[2]);
         return hexColor.toUpperCase();
     }
-    if(/^(#|rgb)/i.test(hexColor) == false) {
+    if(/^(#|rgb)/i.test(hexColor) === false) {
         return svgColorKeywordsToHex(hexColor).toUpperCase();
     }
     return '#000000';
@@ -992,7 +1099,7 @@ function getStyle(obj) {
                     t(o[i].childs);
                 }
             } catch(e) {}
-            if(o[i].name == 'style') {
+            if(o[i].name === 'style') {
                 r = o[i].childs[0];
             }
         }
@@ -1042,7 +1149,7 @@ function getValueFromStyleInline(property, styleString) {
 
 function rectToPath(x, y, width, height, rx, ry) {
     var d = '';
-    if(rx == 0 && ry == 0) {
+    if(rx === 0 && ry === 0) {
         d = 'M' + x + ',' + y + 'L' + (x+width) + ',' + y + 'L' + (x+width) + ',' + (y+height) + 'L' + x + ',' + (y+height) + 'z';
     } else {
         d = 'M' + (x + rx) + ',' + y + ',' +
