@@ -236,7 +236,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                     if(opacity !== '' && Number(opacity) !== 1) {
                         opacityHex = precentToHex(opacity * 100);
                         // #AARRGGBB
-                        fillColor = '#' + opacityHex + fill.replace('#', '');
+                        fillColor = '#' + opacityHex + formatColor(fill).replace('#', '');
                     } else if (fill.toLowerCase() === "none") {
                         fillColor = "#00000000";
                     } else {
