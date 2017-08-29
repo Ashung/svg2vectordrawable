@@ -337,7 +337,7 @@ function svg2vectorDrawableContent(svgContent, density) {
 
                     if(stroke !== '' && stroke !== 'none') {
                         if (strokeWidth === '') {
-                            vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="1dp"\n';
+                            vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="1"\n';
                         } else {
                             vectorDrawableXML += repeatString(' ', indent) + '    android:strokeWidth="' + strokeWidth + '"\n';
                         }
