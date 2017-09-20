@@ -92,7 +92,7 @@ function svg2vectorDrawableContent(svgContent, density) {
             for(var i = 0; i < obj.length; i ++) {
 
                 // g -> group
-                if(obj[i].name === 'g') {
+                if(obj[i].name === 'g' || obj[i].name === 'defs') {
                     
                     // Attributes in group
                     groupAttrs = {};
@@ -1166,12 +1166,28 @@ function rectToPath(x, y, width, height, rx, ry) {
 }
 
 function polygonToPath(points) {
-    var d = 'M' + points.replace(/\s+/g, 'L');
-        if(/L$/.test(d)) {
-            d.substring(0, d.length-1);
-        }
-        d += 'z';
-    return d;
+  var pointsArrayRaw = typeof points !== "undefined" ? points.split(",") : [];
+  var pointsArray = [];
+  for (var i = 0; i < pointsArrayRaw.length; i++) {
+    var splitted = pointsArrayRaw[i].split(" ");
+    for (var j = 0; j < splitted.length; j++) {
+      if (splitted[j].length > 0) {
+        pointsArray.push(splitted[j]);
+      }
+    }
+  }
+
+  if (pointsArray.length % 2 == 0) {
+    var output = "";
+    for (var i = 0; i < pointsArray.length; i += 2) {
+      output += i == 0 ? "M " : "L ";
+      output += pointsArray[i] + " " + pointsArray[i + 1] + " ";
+    }
+    output += "Z";
+    return output;
+  } else {
+    return null;
+  }
 }
 
 function circleToPath(cx, cy, r) {
