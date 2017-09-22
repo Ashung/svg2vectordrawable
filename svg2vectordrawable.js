@@ -1166,28 +1166,27 @@ function rectToPath(x, y, width, height, rx, ry) {
 }
 
 function polygonToPath(points) {
-  var pointsArrayRaw = typeof points !== "undefined" ? points.split(",") : [];
-  var pointsArray = [];
-  for (var i = 0; i < pointsArrayRaw.length; i++) {
-    var splitted = pointsArrayRaw[i].split(" ");
-    for (var j = 0; j < splitted.length; j++) {
-      if (splitted[j].length > 0) {
-        pointsArray.push(splitted[j]);
-      }
+    var pointsArrayRaw = typeof points !== "undefined" ? points.split(",") : [];
+    var pointsArray = [];
+    for (var i = 0; i < pointsArrayRaw.length; i++) {
+        var splitted = pointsArrayRaw[i].split(" ");
+        for (var j = 0; j < splitted.length; j++) {
+            if (splitted[j].length > 0) {
+                pointsArray.push(splitted[j]);
+            }
+        }
     }
-  }
-
-  if (pointsArray.length % 2 == 0) {
-    var output = "";
-    for (var i = 0; i < pointsArray.length; i += 2) {
-      output += i == 0 ? "M " : "L ";
-      output += pointsArray[i] + " " + pointsArray[i + 1] + " ";
+    if (pointsArray.length % 2 == 0) {
+        var d = "";
+        for (var i = 0; i < pointsArray.length; i += 2) {
+            d += i == 0 ? "M " : "L ";
+            d += pointsArray[i] + " " + pointsArray[i + 1] + " ";
+        }
+        d += "z";
+        return d;
+    } else {
+        return "";
     }
-    output += "Z";
-    return output;
-  } else {
-    return null;
-  }
 }
 
 function circleToPath(cx, cy, r) {
