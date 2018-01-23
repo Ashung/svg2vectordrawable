@@ -465,7 +465,7 @@ function svg2vectorDrawableContent(svgContent, density) {
                         var ry = obj[i].attrib.ry ? parseFloat(obj[i].attrib.ry) : 0;
                         d = ellipseToPath(cx, cy, rx, ry);
                     } else {
-                        d = obj[i].attrib.d;
+                        d = obj[i].attrib.d.trim();
                     }
 
                     vectorDrawableXML += repeatString(' ', indent) + '    android:pathData="' + d + '"/>\n';
@@ -1166,6 +1166,7 @@ function rectToPath(x, y, width, height, rx, ry) {
 }
 
 function polygonToPath(points) {
+    points = points.trim();
     var pointsArrayRaw = typeof points !== "undefined" ? points.split(",") : [];
     var pointsArray = [];
     for (var i = 0; i < pointsArrayRaw.length; i++) {
@@ -1179,8 +1180,8 @@ function polygonToPath(points) {
     if (pointsArray.length % 2 == 0) {
         var d = "";
         for (var i = 0; i < pointsArray.length; i += 2) {
-            d += i == 0 ? "M " : "L ";
-            d += pointsArray[i] + " " + pointsArray[i + 1] + " ";
+            d += i == 0 ? "M" : "L";
+            d += pointsArray[i] + "," + pointsArray[i + 1] + "";
         }
         d += "z";
         return d;
