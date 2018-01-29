@@ -1,26 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2017 Ashung Hung (ashung.hung@gmail.com)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy 
-// of this software and associated documentation files (the "Software"), to deal 
-// in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
-// sell copies of the Software, and to permit persons to whom the Software is 
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in 
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-// DEALINGS IN THE SOFTWARE.
-//
-////////////////////////////////////////////////////////////////////////////////
+// The MIT License (MIT)
+// Copyright (c) 2018 Ashung Hung Ashung Hung (ashung.hung@gmail.com)
 
 // https://github.com/hgourvest/node-xml-lite
 var xml = require('node-xml-lite');
@@ -203,9 +182,9 @@ function svg2vectorDrawableContent(svgContent, density) {
                     vectorDrawableXML += repeatString(' ', indent) + '<path\n';
 
                     // fill, opacity -> android:fillColor
-                    var fill = groupAttrs.fill || '#000000';
+                    var fill = groupAttrs.fill || '';
                     var opacity = groupAttrs.opacity || 1;
-                    var fillColor = '#000000';
+                    var fillColor = '';
                     var opacityHex = 'FF';
 
                     if(style && hasArrtib(obj[i].attrib, 'class')) {
@@ -238,14 +217,16 @@ function svg2vectorDrawableContent(svgContent, density) {
                         // #AARRGGBB
                         fillColor = '#' + opacityHex + formatColor(fill).replace('#', '');
                     } else if (fill.toLowerCase() === "none") {
-                        fillColor = "#00000000";
+                        fillColor = '';
                     } else {
                         // #RRGGBB
                         fillColor = formatColor(fill);
                     }
 
-                    vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + fillColor + '"\n';
-                    
+                    if (fillColor !== '') {
+                        vectorDrawableXML += repeatString(' ', indent) + '    android:fillColor="' + fillColor + '"\n';
+                    }
+
                     // fill-opacity -> android:fillAlpha
                     var fillAlpha = groupAttrs.fillAlpha || '';
 
@@ -593,7 +574,7 @@ function formatColor(hexColor) {
     if(/^(#|rgb)/i.test(hexColor) === false) {
         return svgColorKeywordsToHex(hexColor).toUpperCase();
     }
-    return '#000000';
+    return '';
 }
 
 // 0-255 -> OO-ff
