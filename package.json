@@ -1,32 +1,44 @@
 {
   "name": "svg2vectordrawable",
-  "version": "1.1.10",
-  "description": "Node.js module and Command-line tools for convert SVG to Android vector drawable.",
+  "version": "2.0.0",
+  "description": "Node.js module and command-line tools for convert SVG to Android vector drawable.",
   "author": {
     "name": "Ashung Hung",
     "email": "Ashung.hung@gmail.com",
     "url": "http://github.com/Ashung"
   },
-  "licence": "The MIT License (MIT)",
-  "main": "./svg2vectordrawable.js",
+  "homepage": "https://github.com/Ashung/svg2vectordrawable",
+  "licence": "MIT",
+  "main": "./lib/svg2vectordrawable.js",
   "bin": {
-    "s2v": "./svg2vectordrawable_cli.js"
+    "s2v": "./bin/svg2vectordrawable",
+    "svg2avd": "./bin/svg2vectordrawable",
+    "svg2android": "./bin/svg2vectordrawable",
+    "svg2vector": "./bin/svg2vectordrawable",
+    "svg2drawable": "./bin/svg2vectordrawable",
+    "svg2vectordrawable": "./bin/svg2vectordrawable"
   },
   "keywords": [
     "svg",
-    "Android",
+    "android",
     "vector drawable",
     "s2v",
+    "svg2avd",
     "svg2vectordrawable",
     "svg2drawable",
     "svg2android"
   ],
   "dependencies": {
-    "node-xml-lite": "0.0.7"
+    "coa": "^2.0.1",
+    "mkdirp": "^0.5.1",
+    "svg-path-bounds": "^1.0.1",
+    "svgo": "^1.0.5"
   },
-  "homepage": "https://github.com/Ashung/svg2vectordrawable",
   "repository": {
     "type": "git",
     "url": "https://github.com/Ashung/svg2vectordrawable.git"
+  },
+  "engines": {
+    "node": ">=9.0.0"
   }
 }

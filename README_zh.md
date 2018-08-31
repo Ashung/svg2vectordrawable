@@ -1,20 +1,18 @@
 # SVG2VectorDrawable
 
-[中文说明](readme_zh.md)
+将 SVG 文件转化为 Android Vector Drawable 的 Node.js 模块和命令行工具，支持渐变与蒙版。
 
-Node.js module and command-line tools for convert SVG to Android vector drawable. **Support vector drawable with gradient and clip mask.**
+## 在命令行中使用
 
-## Use in command-line
-
-Install.
+安装。
 
 ```shell
 npm install svg2vectordrawable -g
 ```
 
-Show help, you can use any one for command name as you like.
+显示帮助信息，你可以使用任意一个词作为程序名。
 
-```shell
+```
 s2v -h
 svg2avd -h
 svg2android -h
@@ -23,35 +21,35 @@ svg2drawable -h
 svg2vectordrawable -h
 ```
 
-Convert a SVG to vector drawable file.
+转换一个 SVG 文件为 Vector Drawable 文件。
 
 ```shell
 s2v -i input.svg -o output.xml
 s2v -i input.svg -o res/drawable/output.xml
 ```
 
-Convert all SVG file in a folder to vector drawable file.
+转换一个下所有 SVG 文件为 Vector Drawable 文件。
 
 ```shell
 s2v -i input_folder -o output_folder
 ```
 
-Show vector drawable code from SVG code, or convert it to XML file.
+从 SVG 代码输出 Vector Drawable 代码，或转换为 XML 文件。 
 
 ```shell
 s2v -s '<rect x="2" y="2" width="20" height="20"/>'
 s2v -s '<Paste from Sketch SVG code>' -o output.xml
 ```
 
-## Use in node.js
+## 在 Node.js 中使用
 
-Install.
+安装。
 
-```shell
+```bash
 npm install svg2vectordrawable -s
 ```
 
-Example.
+示例。
 
 ```javascript
 const svg2vectordrawable = require('svg2vectordrawable');
@@ -63,10 +61,10 @@ svg2vectordrawable(svgCode).then(xmlCode => {
 });
 ```
 
-## License
+## 版权声明
 
 MIT
 
-## Donate
+## 打赏
 
-[Buy me a coffee](https://www.buymeacoffee.com/ashung) or donate [$5.00](https://www.paypal.me/ashung/5) [$10.00](https://www.paypal.me/ashung/10)  via PayPal.
+[使用支付宝或微信扫码支付](https://ashung.github.io/donate.html)
