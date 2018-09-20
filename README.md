@@ -1,6 +1,6 @@
 # SVG2VectorDrawable
 
-[中文说明](readme_zh.md)
+[中文说明](README_zh.md)
 
 Node.js module and command-line tools for convert SVG to Android vector drawable. **Support vector drawable with gradient and clip mask.**
 
