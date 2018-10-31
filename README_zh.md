@@ -31,7 +31,7 @@ s2v -i input.svg -o res/drawable/output.xml
 转换一个下所有 SVG 文件为 Vector Drawable 文件。
 
 ```shell
-s2v -i input_folder -o output_folder
+s2v -f input_folder -o output_folder
 ```
 
 从 SVG 代码输出 Vector Drawable 代码，或转换为 XML 文件。 

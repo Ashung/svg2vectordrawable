@@ -33,7 +33,7 @@ s2v -i input.svg -o res/drawable/output.xml
 Convert all SVG file in a folder to vector drawable file.
 
 ```shell
-s2v -i input_folder -o output_folder
+s2v -f input_folder -o output_folder
 ```
 
 Show vector drawable code from SVG code, or convert it to XML file.
