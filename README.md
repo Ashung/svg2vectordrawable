@@ -51,16 +51,23 @@ Install.
 npm install svg2vectordrawable -s
 ```
 
-Example.
+Example 1, convert SVG code to Android Vector Drawable code, and write to a file.
 
 ```javascript
 const svg2vectordrawable = require('svg2vectordrawable');
+const writeFile = require('svg2vectordrawable/lib/write-content-to-file');
 let svgCode = '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20"/></svg>';
 svg2vectordrawable(svgCode).then(xmlCode => {
     console.log(xmlCode);
-}).catch(err => {
-    return console.error(err.message);
+    writeFile(xmlCode, './dir/output.xml');
 });
+```
+
+Example 2, convert SVG file to Android Vector Drawable file.
+
+```javascript
+const svg2vectordrawable = require('svg2vectordrawable/svg-file-to-vectordrawable-file');
+svg2vectordrawable('./dir/input.svg', './dir/output.xml');
 ```
 
 ## License
