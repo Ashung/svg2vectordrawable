@@ -1,6 +1,6 @@
 {
   "name": "svg2vectordrawable",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "description": "Node.js module and command-line tools for convert SVG to Android vector drawable.",
   "author": {
     "name": "Ashung Hung",
@@ -28,7 +28,7 @@
     "svg2android"
   ],
   "dependencies": {
-    "coa": "^2.0.1",
+    "coa": "^2.0.2",
     "mkdirp": "^0.5.1",
     "svg-path-bounds": "^1.0.1",
     "svgo": "^1.1.1"
