@@ -49,16 +49,23 @@ s2v -s '<Paste from Sketch SVG code>' -o output.xml
 npm install svg2vectordrawable -s
 ```
 
-示例。
+示例 1，将 SVG 代码转为 Android Vector Drawable 代码，并写入文件。
 
 ```javascript
 const svg2vectordrawable = require('svg2vectordrawable');
+const writeFile = require('svg2vectordrawable/lib/write-content-to-file');
 let svgCode = '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20"/></svg>';
 svg2vectordrawable(svgCode).then(xmlCode => {
     console.log(xmlCode);
-}).catch(err => {
-    return console.error(err.message);
+    writeFile(xmlCode, './dir/output.xml');
 });
+```
+
+示例 2，将 SVG 文件转为 Android Vector Drawable 文件。
+
+```javascript
+const svg2vectordrawable = require('svg2vectordrawable/svg-file-to-vectordrawable-file');
+svg2vectordrawable('./dir/input.svg', './dir/output.xml');
 ```
 
 ## 版权声明
