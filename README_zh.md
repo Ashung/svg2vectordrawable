@@ -64,8 +64,25 @@ svg2vectordrawable(svgCode).then(xmlCode => {
 示例 2，将 SVG 文件转为 Android Vector Drawable 文件。
 
 ```javascript
-const svg2vectordrawable = require('svg2vectordrawable/svg-file-to-vectordrawable-file');
+const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
 svg2vectordrawable('./dir/input.svg', './dir/output.xml');
+```
+
+示例 3，在 gulp 中使用。
+
+```javascript
+const path = require('path');
+const vinylPaths = require('vinyl-paths');
+const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
+
+gulp.task('vectorDrawable', () => {
+    let dest = './dest/vector-drawable';
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(vinylPaths(function (file) {
+            let outputPath = path.join(dest, 'ic_' + path.basename(file).replace(/\.svg$/, '.xml'));
+            return svg2vectordrawable(file, outputPath);
+        }));
+});
 ```
 
 ## 版权声明
