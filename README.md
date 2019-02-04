@@ -66,8 +66,25 @@ svg2vectordrawable(svgCode).then(xmlCode => {
 Example 2, convert SVG file to Android Vector Drawable file.
 
 ```javascript
-const svg2vectordrawable = require('svg2vectordrawable/svg-file-to-vectordrawable-file');
+const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
 svg2vectordrawable('./dir/input.svg', './dir/output.xml');
+```
+
+Example 3，use svg2vectordrawable with gulp.
+
+```javascript
+const path = require('path');
+const vinylPaths = require('vinyl-paths');
+const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
+
+gulp.task('vectorDrawable', () => {
+    let dest = './dest/vector-drawable';
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(vinylPaths(function (file) {
+            let outputPath = path.join(dest, 'ic_' + path.basename(file).replace(/\.svg$/, '.xml'));
+            return svg2vectordrawable(file, outputPath);
+        }));
+});
 ```
 
 ## License
