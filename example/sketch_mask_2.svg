@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>star</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="12 17.935 5.82825485 21.4946784 7.3065361 14.5249989 2.01390658 9.75532156 9.09927979 9.00750114 12 2.5 14.9007202 9.00750114 21.9860934 9.75532156 16.6934639 14.5249989 18.1717451 21.4946784"></polygon>
+        <polygon id="path-3" points="12 17.935 5.82825485 21.4946784 7.3065361 14.5249989 2.01390658 9.75532156 9.09927979 9.00750114 12 2.5 14.9007202 9.00750114 21.9860934 9.75532156 16.6934639 14.5249989 18.1717451 21.4946784"></polygon>
+    </defs>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use fill-opacity="0.1" fill="#000000" fill-rule="nonzero" xlink:href="#path-1"></use>
+        <rect fill-opacity="0.6" fill="#000000" fill-rule="nonzero" mask="url(#mask-2)" x="0" y="0" width="16" height="24"></rect>
+        <rect fill="#000000" fill-rule="nonzero" mask="url(#mask-2)" x="0" y="0" width="12" height="24"></rect>
+        <mask id="mask-4" fill="white">
+            <use xlink:href="#path-3"></use>
+        </mask>
+        <use fill-opacity="0.1" fill="#000000" fill-rule="nonzero" xlink:href="#path-3"></use>
+        <polygon fill-opacity="0.59" fill="#FF0000" fill-rule="nonzero" mask="url(#mask-4)" points="24 -7.34788079e-16 24 12 0 12 0 7.34788079e-16"></polygon>
+    </g>
+</svg>
