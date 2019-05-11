@@ -9,6 +9,7 @@
   "homepage": "https://github.com/Ashung/svg2vectordrawable",
   "license": "MIT",
   "main": "./lib/svg-to-vectordrawable.js",
+  "types": "./lib/svg-to-vectordrawable.d.ts",
   "bin": {
     "s2v": "./bin/svg2vectordrawable",
     "svg2avd": "./bin/svg2vectordrawable",
