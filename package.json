@@ -38,6 +38,9 @@
     "type": "git",
     "url": "https://github.com/Ashung/svg2vectordrawable.git"
   },
+  "scripts": {
+    "test": "npx jasmine spec/*.js"
+  },
   "engines": {
     "node": ">=8.0.0"
   }
