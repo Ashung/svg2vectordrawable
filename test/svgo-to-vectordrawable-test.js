@@ -47,4 +47,19 @@ describe('svg-to-vectordrawable', function() {
                 '</vector>\n')});
     });
 
+    describe('Stop offset default value support', () => {
+        it('Does not throw', async () => {
+            await svg2vectordrawable(`
+                <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <defs>
+                    <linearGradient id="myGradient" gradientTransform="rotate(90)">
+                    <stop stop-color="gold" />
+                    <stop offset="95%" stop-color="red" />
+                    </linearGradient>
+                </defs>
+                <circle cx="5" cy="5" r="4" fill="url(#myGradient)" />
+                </svg>
+            `);
+        });
+    });
 });
