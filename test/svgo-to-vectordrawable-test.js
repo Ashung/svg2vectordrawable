@@ -46,5 +46,17 @@ describe('svg-to-vectordrawable', function() {
                 '    </group>\n' +
                 '</vector>\n')});
     });
-
+    
+    it('Does not reject on group masks.', async () => {
+        await svg2vectordrawable(`
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <mask id="mask0" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                    <circle cx="12" cy="12" r="12" fill="#FFFFFF" />
+                </mask>
+                <g mask="url(#mask0)">
+                    <path d="M 0 0 L 24 0 L 24 24 L 0 24" fill="#000000" />
+                </g>
+            </svg>
+        `);
+    });
 });
