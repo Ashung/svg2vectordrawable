@@ -46,7 +46,7 @@ describe('svg-to-vectordrawable', function() {
                 '    </group>\n' +
                 '</vector>\n')});
     });
-    
+  
     it('Does not reject on group masks.', async () => {
         await svg2vectordrawable(`
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -58,5 +58,21 @@ describe('svg-to-vectordrawable', function() {
                 </g>
             </svg>
         `);
+    });
+
+    describe('Stop offset default value support', () => {
+        it('Does not throw', async () => {
+            await svg2vectordrawable(`
+                <svg viewBox="0 0 10 10">
+                    <defs>
+                        <linearGradient id="myGradient" gradientTransform="rotate(90)">
+                            <stop stop-color="gold" />
+                            <stop offset="95%" stop-color="red" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="5" cy="5" r="4" fill="url(#myGradient)" />
+                </svg>
+            `);
+        });
     });
 });
