@@ -22,8 +22,8 @@ describe('svg-to-vectordrawable', function() {
     it('supports groups with multiple transforms', function() {
         return svg2vectordrawable('<svg>\n' +
                 '<g transform="scale(0.5 0.5) translate(10 10)">\n' +
-            '       <rect />\n' +
-            '       <circle />\n' +
+            '       <rect x="0" y="0" width="10" height="10" />\n' +
+            '       <circle cx="10" cy="10" r="10" />\n' +
             '   </g>\n' +
             '</svg>')
             .then(function(vd) { expect(vd).toEqual(
@@ -32,18 +32,10 @@ describe('svg-to-vectordrawable', function() {
                 '    android:height="24dp"\n' +
                 '    android:viewportWidth="24"\n' +
                 '    android:viewportHeight="24">\n' +
-                '    <group\n' +
-                '        android:scaleX="0.5"\n' +
-                '        android:scaleY="0.5"\n' +
-                '        android:translateX="10"\n' +
-                '        android:translateY="10">\n' +
-                '        <path\n' +
-                '            android:fillColor="#000"\n' +
-                '            android:pathData="M0,0h0v0H0z"/>\n' +
-                '        <path\n' +
-                '            android:fillColor="#000"\n' +
-                '            android:pathData="M0 0z"/>\n' +
-                '    </group>\n' +
+                '    <path\n' +
+                '        android:pathData="M5 5h5v5H5z"/>\n' +
+                '    <path\n' +
+                '        android:pathData="M10 5a5 5 0 1 0 0 10a5 5 0 1 0 0-10z"/>\n' +
                 '</vector>\n')});
     });
   
