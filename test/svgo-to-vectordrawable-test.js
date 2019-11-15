@@ -67,4 +67,19 @@ describe('svg-to-vectordrawable', function() {
             `);
         });
     });
+
+    describe('Hanldes rect as masks.', () => {
+        it('Does not reject', async () => {
+            await svg2vectordrawable(`
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="20" height="20">
+                        <rect x="2" y="2" width="20" height="20" rx="4" fill="#000000"/>
+                    </mask>
+                    <g mask="url(#mask0)">
+                        <path d="M 0 0 L 24 0 L 24 24 L 0 24" fill="#000000" />
+                    </g>
+                </svg>
+            `);
+        });
+    });
 });
