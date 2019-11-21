@@ -52,6 +52,44 @@ describe('svg-to-vectordrawable', function() {
         `);
     });
 
+    it(`Flag 'fillBlack' uses black fill for paths with no fill.`, async () => {
+        // Flag
+        await svg2vectordrawable(`
+            <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M5 5h5v5H5z"/>
+            </svg>
+        `, 
+        undefined, 
+        undefined, 
+        true, // blackDefault
+        ).then(function(vd) { expect(vd).toEqual(
+            '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
+            '    android:width="24dp"\n' +
+            '    android:height="24dp"\n' +
+            '    android:viewportWidth="24"\n' +
+            '    android:viewportHeight="24">\n' +
+            '    <path\n' + 
+            '        android:fillColor="#000"\n' +  
+            '        android:pathData="M5 5h5v5H5z"/>\n' +
+            '</vector>\n')});
+
+        // No flag
+        await svg2vectordrawable(`
+            <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M5 5h5v5H5z"/>
+            </svg>
+        `).then(function(vd) { expect(vd).toEqual(
+            '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
+            '    android:width="24dp"\n' +
+            '    android:height="24dp"\n' +
+            '    android:viewportWidth="24"\n' +
+            '    android:viewportHeight="24">\n' +
+            '    <path\n' +  
+            '        android:pathData="M5 5h5v5H5z"/>\n' +
+            '</vector>\n')});
+    });
+
+
     describe('Stop offset default value support', () => {
         it('Does not throw', async () => {
             await svg2vectordrawable(`
