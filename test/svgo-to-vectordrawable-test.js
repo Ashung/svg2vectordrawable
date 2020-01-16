@@ -38,7 +38,7 @@ describe('svg-to-vectordrawable', function() {
                 '        android:pathData="M10 5a5 5 0 1 0 0 10a5 5 0 1 0 0-10z"/>\n' +
                 '</vector>\n')});
     });
-  
+
     it('Does not reject on group masks.', async () => {
         await svg2vectordrawable(`
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -58,9 +58,9 @@ describe('svg-to-vectordrawable', function() {
             <svg width="24" height="24" viewBox="0 0 24 24">
                 <path d="M5 5h5v5H5z"/>
             </svg>
-        `, 
-        undefined, 
-        undefined, 
+        `,
+        undefined,
+        undefined,
         true, // blackDefault
         ).then(function(vd) { expect(vd).toEqual(
             '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
@@ -68,8 +68,8 @@ describe('svg-to-vectordrawable', function() {
             '    android:height="24dp"\n' +
             '    android:viewportWidth="24"\n' +
             '    android:viewportHeight="24">\n' +
-            '    <path\n' + 
-            '        android:fillColor="#000"\n' +  
+            '    <path\n' +
+            '        android:fillColor="#000"\n' +
             '        android:pathData="M5 5h5v5H5z"/>\n' +
             '</vector>\n')});
 
@@ -84,7 +84,7 @@ describe('svg-to-vectordrawable', function() {
             '    android:height="24dp"\n' +
             '    android:viewportWidth="24"\n' +
             '    android:viewportHeight="24">\n' +
-            '    <path\n' +  
+            '    <path\n' +
             '        android:pathData="M5 5h5v5H5z"/>\n' +
             '</vector>\n')});
     });
@@ -119,5 +119,27 @@ describe('svg-to-vectordrawable', function() {
                 </svg>
             `);
         });
+    });
+
+    it('applies group attributes correctly to rounded rectangles', function() {
+        return svg2vectordrawable('<svg>\n' +
+                '<g transform="scale(0.5 0.5) translate(10 10)" fill="#000000" fill-rule="nonzero">\n' +
+            '       <rect x="0" y="0" width="10" height="10" rx="4" />\n' +
+            '       <rect x="0" y="0" width="10" height="10" rx="4" />\n' +
+            '   </g>\n' +
+            '</svg>')
+            .then(function(vd) { expect(vd).toEqual(
+                '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
+                '    android:width="24dp"\n' +
+                '    android:height="24dp"\n' +
+                '    android:viewportWidth="24"\n' +
+                '    android:viewportHeight="24">\n' +
+                '    <path\n' +
+                '        android:fillColor="#000"\n' +
+                '        android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>\n' +
+                '    <path\n' +
+                '        android:fillColor="#000"\n' +
+                '        android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>\n' +
+                '</vector>\n')});
     });
 });
