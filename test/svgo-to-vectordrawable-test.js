@@ -142,4 +142,18 @@ describe('svg-to-vectordrawable', function() {
                 '        android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>\n' +
                 '</vector>\n')});
     });
+
+    it('Handles gradient inital stop color', async () => {
+        await svg2vectordrawable(`
+            <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 0 0 H 240 V 240 H 0 Z" fill="url(#paint)"/>
+                <defs>
+                    <linearGradient id="paint" x1="0" y1="0" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#636363"/>
+                        <stop offset="1"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        `);
+    });
 });
