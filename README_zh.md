@@ -1,6 +1,6 @@
 # SVG2VectorDrawable
 
-将 SVG 文件转化为 Android Vector Drawable 的 Node.js 模块和命令行工具，支持渐变与蒙版。
+将 SVG 文件转化为 Android Vector Drawable 的 JavaScript 模块和命令行工具。
 
 ## 在命令行中使用
 
@@ -33,7 +33,7 @@ s2v -s '<rect x="2" y="2" width="20" height="20"/>'
 s2v -s '<Paste from Sketch SVG code>' -o output.xml
 ```
 
-## 在 Node.js 中使用
+## 在 JavaScript 中使用
 
 安装。
 
@@ -45,12 +45,23 @@ npm install svg2vectordrawable -s
 
 ```javascript
 const svg2vectordrawable = require('svg2vectordrawable');
-const writeFile = require('svg2vectordrawable/lib/write-content-to-file');
 let svgCode = '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20"/></svg>';
-let floatPrecision = 3; // 如果不定义默认为 2.
-svg2vectordrawable(svgCode, floatPrecision).then(xmlCode => {
+svg2vectordrawable(svgCode).then(xmlCode => {
     console.log(xmlCode);
-    writeFile(xmlCode, './dir/output.xml');
+});
+```
+
+使用 options 参数.
+
+```javascript
+let options = {
+		floatPrecision: 3, // 数值精度，默认为 2
+    fillBlack: true, // 为无填充变成填充黑色，默认为 false
+    xmlTag: true, // 添加 XML 文档声明标签，默认为 false
+    tint: '#FFFFFFFF' // 在 vector 标签添加着色属性
+};
+svg2vectordrawable(svgCode, options).then(xmlCode => {
+    console.log(xmlCode);
 });
 ```
 
@@ -58,8 +69,7 @@ svg2vectordrawable(svgCode, floatPrecision).then(xmlCode => {
 
 ```javascript
 const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
-let floatPrecision = 3; // 如果不定义默认为 2.
-svg2vectordrawable('./dir/input.svg', './dir/output.xml', floatPrecision);
+svg2vectordrawable('./dir/input.svg', './dir/output.xml');
 ```
 
 示例 3，在 gulp 中使用。
@@ -68,15 +78,12 @@ svg2vectordrawable('./dir/input.svg', './dir/output.xml', floatPrecision);
 const path = require('path');
 const vinylPaths = require('vinyl-paths');
 const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
-
-let floatPrecision = 3; // 如果不定义默认为 2.
-
 gulp.task('vectorDrawable', () => {
     let dest = './dest/vector-drawable';
     return gulp.src('./dest/svg/*.svg')
         .pipe(vinylPaths(function (file) {
             let outputPath = path.join(dest, 'ic_' + path.basename(file).replace(/\.svg$/, '.xml'));
-            return svg2vectordrawable(file, outputPath, floatPrecision);
+            return svg2vectordrawable(file, outputPath);
         }));
 });
 ```

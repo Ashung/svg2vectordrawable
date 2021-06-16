@@ -1,42 +1,59 @@
 const svg2vectordrawable = require('../lib/svg-to-vectordrawable');
 
 describe('svg-to-vectordrawable', function() {
-    it('resolves in strict mode when all elements and attributes are supported', function() {
-        return svg2vectordrawable('<svg><rect width="10" height="10" /></svg>', undefined, true);
+    let originalTimeout;
+
+    beforeEach(function() {
+        originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     });
 
-    it('rejects in strict mode on nonsupported elements', function() {
-        return svg2vectordrawable('<svg><rect><text>Hello</text></rect></svg>', undefined, true).then(
+    afterEach(function() {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+    });
+
+    it('resolves in strict mode when all elements and attributes are supported', function() {
+        return svg2vectordrawable('<svg><rect width="10" height="10" /></svg>', { strict: true });
+    });
+
+    it('rejects in strict mode on no supported elements', function() {
+        return svg2vectordrawable('<svg><rect><text>Hello</text></rect></svg>', { strict: true }).then(
             function() { fail('Should throw'); },
             function(error) { expect(error).toEqual(new Error('Unsupported element text')); }
         );
     });
 
-    it('rejects in strict mode on nonsupported attributes', function() {
-        return svg2vectordrawable('<svg><rect pathLength="10" /></svg>', undefined, true).then(
+    it('rejects in strict mode on no supported attributes', function() {
+        return svg2vectordrawable('<svg><rect pathLength="10" /></svg>', { strict: true }).then(
             function() { fail('Should throw'); },
             function(error) { expect(error).toEqual(new Error('Unsupported attribute pathLength')); }
         );
     });
 
     it('supports groups with multiple transforms', function() {
-        return svg2vectordrawable('<svg>\n' +
-                '<g transform="scale(0.5 0.5) translate(10 10)">\n' +
-            '       <rect x="0" y="0" width="10" height="10" />\n' +
-            '       <circle cx="10" cy="10" r="10" />\n' +
-            '   </g>\n' +
-            '</svg>')
-            .then(function(vd) { expect(vd).toEqual(
-                '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
-                '    android:width="24dp"\n' +
-                '    android:height="24dp"\n' +
-                '    android:viewportWidth="24"\n' +
-                '    android:viewportHeight="24">\n' +
-                '    <path\n' +
-                '        android:pathData="M5 5h5v5H5z"/>\n' +
-                '    <path\n' +
-                '        android:pathData="M10 5a5 5 0 1 0 0 10a5 5 0 1 0 0-10z"/>\n' +
-                '</vector>\n')});
+        return svg2vectordrawable(`<svg>
+                <g transform="scale(0.5 0.5) translate(10 10)">
+                   <rect x="0" y="0" width="10" height="10" />
+                   <circle cx="10" cy="10" r="10" />
+               </g>
+            </svg>`)
+            .then(function(vd) { expect(vd).toEqual(`<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:translateX="10"
+        android:translateY="10">
+        <path
+            android:pathData="M0 0H10V10H0z"/>
+        <path
+            android:pathData="M10 0A10 10 0 1 0 10 20 10 10 0 1 0 10 0z"/>
+    </group>
+</vector>
+`)});
     });
 
     it('Does not reject on group masks.', async () => {
@@ -46,7 +63,7 @@ describe('svg-to-vectordrawable', function() {
                     <circle cx="12" cy="12" r="12" fill="#FFFFFF" />
                 </mask>
                 <g mask="url(#mask0)">
-                    <path d="M 0 0 L 24 0 L 24 24 L 0 24" fill="#000000" />
+                    <path d="M 0 0 L 24 0 L 24 24 L 0 24" fill="#FF000000" />
                 </g>
             </svg>
         `);
@@ -55,13 +72,16 @@ describe('svg-to-vectordrawable', function() {
     it(`Flag 'fillBlack' uses black fill for paths with no fill.`, async () => {
         // Flag
         await svg2vectordrawable(`
-            <svg width="24" height="24" viewBox="0 0 24 24">
-                <path d="M5 5h5v5H5z"/>
-            </svg>
-        `,
-        undefined,
-        undefined,
-        true, // blackDefault
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M5 5h5v5H5z"/>
+                </svg>
+            `,
+            {
+                floatPrecision: 2,
+                strict: false,
+                fillBlack: true,
+                xmlTag: false,
+            }
         ).then(function(vd) { expect(vd).toEqual(
             '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
             '    android:width="24dp"\n' +
@@ -69,7 +89,7 @@ describe('svg-to-vectordrawable', function() {
             '    android:viewportWidth="24"\n' +
             '    android:viewportHeight="24">\n' +
             '    <path\n' +
-            '        android:fillColor="#000"\n' +
+            '        android:fillColor="#FF000000"\n' +
             '        android:pathData="M5 5h5v5H5z"/>\n' +
             '</vector>\n')});
 
@@ -89,7 +109,6 @@ describe('svg-to-vectordrawable', function() {
             '</vector>\n')});
     });
 
-
     describe('Stop offset default value support', () => {
         it('Does not throw', async () => {
             await svg2vectordrawable(`
@@ -106,7 +125,7 @@ describe('svg-to-vectordrawable', function() {
         });
     });
 
-    describe('Hanldes rect as masks.', () => {
+    describe('Handle rect as masks.', () => {
         it('Does not reject', async () => {
             await svg2vectordrawable(`
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -121,29 +140,35 @@ describe('svg-to-vectordrawable', function() {
         });
     });
 
-    it('applies group attributes correctly to rounded rectangles', function() {
-        return svg2vectordrawable('<svg>\n' +
-                '<g transform="scale(0.5 0.5) translate(10 10)" fill="#000000" fill-rule="nonzero">\n' +
-            '       <rect x="0" y="0" width="10" height="10" rx="4" />\n' +
-            '       <rect x="0" y="0" width="10" height="10" rx="4" />\n' +
-            '   </g>\n' +
-            '</svg>')
-            .then(function(vd) { expect(vd).toEqual(
-                '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n' +
-                '    android:width="24dp"\n' +
-                '    android:height="24dp"\n' +
-                '    android:viewportWidth="24"\n' +
-                '    android:viewportHeight="24">\n' +
-                '    <path\n' +
-                '        android:fillColor="#000"\n' +
-                '        android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>\n' +
-                '    <path\n' +
-                '        android:fillColor="#000"\n' +
-                '        android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>\n' +
-                '</vector>\n')});
+    it('Applies group attributes correctly to rounded rectangles', function() {
+        return svg2vectordrawable(`<svg>
+                <g transform="scale(0.5 0.5) translate(10 10)" fill="#000000" fill-rule="nonzero">
+                   <rect x="0" y="0" width="10" height="10" rx="4" />
+                   <rect x="0" y="0" width="10" height="10" rx="4" />
+               </g>
+            </svg>`)
+            .then(function(vd) { expect(vd).toEqual(`<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:translateX="10"
+        android:translateY="10">
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>
+    </group>
+</vector>
+`)});
     });
 
-    it('Handles gradient inital stop color', async () => {
+    it('Handles gradient stop color', async () => {
         await svg2vectordrawable(`
             <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
                 <path d="M 0 0 H 240 V 240 H 0 Z" fill="url(#paint)"/>

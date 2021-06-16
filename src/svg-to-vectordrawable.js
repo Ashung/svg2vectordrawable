@@ -1,15 +1,13 @@
-
-const EOL = require('os').EOL;
-const svgoConfig = require('./svgo-config');
-const config = require('svgo/lib/svgo/config');
+const { defaultPlugins, resolvePluginConfig } = require('svgo/lib/svgo/config');
 const svgoUsePlugins = require('svgo/lib/svgo/plugins');
 const svg2js = require('svgo/lib/svgo/svg2js');
-// const js2svg = require('svgo/lib/svgo/js2svg');
 const JSAPI = require('svgo/lib/svgo/jsAPI');
 // https://www.npmjs.com/package/svg-path-bounds
 const pathBounds = require('svg-path-bounds');
 // https://github.com/fontello/svgpath
 const svgpath = require('svgpath');
+
+// const js2svg = require('svgo/lib/svgo/js2svg');
 
 let JS2XML = function() {
     this.width = 24;
@@ -85,28 +83,110 @@ let JS2XML = function() {
     ];
 };
 
-JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
+JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, tint) {
+
+    // SVGO plugins config
+    const svgoConfig = {
+        info: {
+            input: 'string'
+        },
+        plugins: [
+            {
+                name: 'cleanupListOfValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'cleanupNumericValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'convertPathData',
+                params: { floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, makeArcs: false, noSpaceAfterFlags: false, collapseRepeated: false }
+            },
+            {
+                name: 'convertTransform',
+                active: false,
+                // params: { convertToShorts: false, floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, collapseIntoOne: true, matrixToTransform: false, shortTranslate: false, shortScale: false }
+            },
+            {
+                name: 'convertColors',
+                params: { shorthex: false, shortname: false }
+            },
+            {
+                name: 'removeUnknownsAndDefaults',
+                params: { unknownContent: false, unknownAttrs: false }
+            },
+            {
+                name: 'convertShapeToPath',
+                params: { convertArcs: true, floatPrecision: floatPrecision }
+            },
+            {
+                name: 'mergePaths',
+                active: false
+            },
+            {
+                name: 'cleanupIDs',
+                active: false
+            },
+            {
+                name: 'removeRasterImages',
+            },
+            {
+                name: 'removeStyleElement',
+            },
+            {
+                name: 'inlineStyles',
+                params: { onlyMatchedOnce: false }
+            },
+            {
+                name: 'removeScriptElement',
+            },
+            {
+                name: 'removeXMLNS',
+            },
+            {
+                name: 'removeViewBox',
+                active: false
+            },
+            {
+                name: 'removeOffCanvasPaths',
+            },
+            {
+                name: 'moveElemsAttrsToGroup',
+                active: false
+            },
+        ]
+    };
 
     // Tag use to original
     let elemUses = data.querySelectorAll('use');
     if (elemUses) {
         elemUses.forEach(elem => {
             if (elem.hasAttr('xlink:href')) {
-
                 let originalElem = data.querySelector(elem.attr('xlink:href').value);
-                let newElem = new JSAPI({ elem: originalElem.elem });
-                elem.eachAttr(attr => {
-                    if (attr.name !== 'xlink:href' && attr.name !== 'id') {
-                        newElem.addAttr(attr);
-                    }
+                let newElem = new JSAPI({
+                    type: originalElem.type,
+                    name: originalElem.name
                 });
                 originalElem.eachAttr(attr => {
                     if (attr.name !== 'xlink:href' && attr.name !== 'id') {
                         newElem.addAttr(attr);
                     }
                 });
-                elem.parentNode.spliceContent(elem.parentNode.content.indexOf(elem), 0, newElem);
-                elem.parentNode.spliceContent(elem.parentNode.content.indexOf(elem), 1, []);
+                elem.eachAttr(attr => {
+                    if (attr.name !== 'xlink:href' && attr.name !== 'id' && attr.name !== 'class') {
+                        newElem.addAttr(attr);
+                    }
+                });
+                if ((newElem.attr('x') || newElem.attr('y')) && newElem.attr('d')) {
+                    let x = newElem.attr('x') ? parseFloat(newElem.attr('x').value) : 0;
+                    let y = newElem.attr('y') ? parseFloat(newElem.attr('y').value) : 0;
+                    let pathData = svgpath(newElem.attr('d').value).translate(x, y).rel().round(floatPrecision).toString();
+                    newElem.removeAttr('d');
+                    newElem.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
+                }
+                elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 0, newElem);
+                elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 1, []);
             }
         });
     }
@@ -119,11 +199,11 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
     });
 
     // SVG Optimize use SVGO
-    let plugins = config(svgoConfig(floatPrecision)).plugins;
-    let info = svgoConfig.info;
-    svgoUsePlugins(data, info, plugins);
-
-    // console.log(js2svg(data).data);
+    const plugins = svgoConfig.plugins || defaultPlugins;
+    let resolvedPlugins = plugins.map(plugin => {
+        return resolvePluginConfig(plugin, svgoConfig);
+    });
+    svgoUsePlugins(data, svgoConfig.info, resolvedPlugins);
 
     // Apply transform to path
     // SVGO do not apply transform to path, when some attribute value is "url()". svgo/plugins/_path.js
@@ -137,7 +217,7 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
                 }
             }, this);
         });
-        svgoUsePlugins(data, info, plugins);
+        svgoUsePlugins(data, svgoConfig.info, resolvedPlugins);
         elemTransformPaths.forEach(elem => {
             elem.eachAttr(attr => {
                 if (attr.value.indexOf('url(') > -1) {
@@ -147,6 +227,8 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
             }, this);
         });
     }
+
+    // console.log(js2svg(data).data);
 
     // Rounded rect to path, SVGO does not convert round rect to paths.
     let elemRects = data.querySelectorAll('rect');
@@ -199,17 +281,17 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
                     let angle = parseFloat(rotateMatch[1]);
                     let rx = parseFloat(rotateMatch[2]) || 0;
                     let ry = parseFloat(rotateMatch[3]) || 0;
-                    pathData = svgpath(pathData).rotate(angle, rx, ry).round(floatPrecision).toString();
+                    pathData = svgpath(pathData).rotate(angle, rx, ry).rel().round(floatPrecision).toString();
                 }
                 if (scaleMatch) {
                     let sx = parseFloat(scaleMatch[1]);
                     let sy = parseFloat(scaleMatch[2]) || sx;
-                    pathData = svgpath(pathData).scale(sx, sy).round(floatPrecision).toString();
+                    pathData = svgpath(pathData).scale(sx, sy).rel().round(floatPrecision).toString();
                 }
                 if (translateMatch) {
                     let x = parseFloat(translateMatch[1]);
                     let y = parseFloat(translateMatch[2]) || 0;
-                    pathData = svgpath(pathData).translate(x, y).round(floatPrecision).toString();
+                    pathData = svgpath(pathData).translate(x, y).rel().round(floatPrecision).toString();
                 }
             }
             elem.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
@@ -223,7 +305,7 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
             let childPaths = elem.querySelectorAll('path');
             if (childPaths) {
                 childPaths.forEach(item => {
-                    // Move fill child path
+                    // Move fill to child path
                     if (elem.hasAttr('fill') && !elem.hasAttr('fill', 'none') && !item.hasAttr('fill') && !item.hasAttr('fill', 'none')) {
                         item.addAttr({ name: 'fill', value: elem.attr('fill').value, prefix: '', local: 'fill' });
                     }
@@ -276,7 +358,6 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
                 elem.removeAttr('opacity');
                 elem.removeAttr('fill-rule');
             }
-
             // Group transform
             if (elem.hasAttr('transform')) {
                 let svgTransform = elem.attr('transform').value;
@@ -285,9 +366,13 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
                 let translateRegExp = new RegExp(`translate\\(${number}${separator}?${number}?\\)`);
                 let scaleRegExp = new RegExp(`scale\\(${number}${separator}?${number}?\\)`);
                 let rotateRegExp = new RegExp(`rotate\\(${number}${separator}?${number}?${separator}?${number}?\\)`);
+                let skewRegExp = new RegExp(`skew\([XY]\)\\(${number}\\)`);
+                let matrixRegExp = new RegExp('matrix\\(\(.*\)\\)');
                 let translateMatch = translateRegExp.exec(svgTransform);
                 let scaleMatch = scaleRegExp.exec(svgTransform);
                 let rotateMatch = rotateRegExp.exec(svgTransform);
+                let skewMatch = skewRegExp.exec(svgTransform);
+                let matrixMatch = matrixRegExp.exec(svgTransform);
                 let attrs = { rotation: '', pivotX: '', pivotY: '', scaleX: '', scaleY: '', translateX: '', translateY: ''};
                 if (rotateMatch) {
                     attrs.rotation = rotateMatch[1];
@@ -301,6 +386,23 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
                 if (translateMatch) {
                     attrs.translateX = translateMatch[1];
                     attrs.translateY = translateMatch[2] || '';
+                }
+                if (skewMatch || matrixMatch) {
+                    let paths = elem.querySelectorAll('path');
+                    paths.forEach(path => {
+                        let pathData = path.attr('d').value;
+                        if (skewMatch) {
+                            let skewX = skewMatch[1] === 'X' ? parseFloat(skewMatch[2]) : 0;
+                            let skewY = skewMatch[1] === 'Y' ? parseFloat(skewMatch[2]) : 0;
+                            pathData = svgpath(pathData).skewX(skewX).skewY(skewY).rel().round(floatPrecision).toString();
+                        }
+                        if (matrixMatch) {
+                            let matrix = matrixMatch[1].split(' ').map(item => parseFloat(item));
+                            pathData = svgpath(pathData).matrix(matrix).rel().round(floatPrecision).toString();
+                        }
+                        path.removeAttr('d');
+                        path.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
+                    });
                 }
                 Object.keys(attrs).forEach(key => {
                     if (attrs[key] !== '' && (attrs[key] !== '0' && (key !== 'scaleX' || key !== 'scaleY'))) {
@@ -316,52 +418,11 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
     elemGroups = data.querySelectorAll('g');
     if (elemGroups) {
         elemGroups.forEach(elem => {
-            if (elem.attrs === undefined) {
-                elem.parentNode.spliceContent(elem.parentNode.content.indexOf(elem), 0, elem.content);
-                elem.parentNode.spliceContent(elem.parentNode.content.indexOf(elem), 1, []);
+            if (Object.keys(elem.attrs).length === 0) {
+                elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 0, elem.children);
+                elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 1, []);
             } else {
                 elem.renameElem('group');
-            }
-        });
-    }
-
-    // Tag gradient
-    let elemGradients = data.querySelectorAll('linearGradient, radialGradient, sweepGradient');
-    if (elemGradients) {
-        elemGradients.forEach(gradient => {
-            if (gradient.hasAttr('id')) {
-                let gradientId = gradient.attr('id').value;
-                let gradientPaths = data.querySelectorAll(`path[fill="url(#${gradientId})"], path[stroke="url(#${gradientId})"]`);
-                if (gradientPaths) {
-                    gradientPaths.forEach(path => {
-                        this.addGradientToElement(gradient, path, floatPrecision);
-                    });
-                }
-            }
-        });
-    }
-
-    // Tag mask to clip-path
-    let elemMasks = data.querySelectorAll('mask');
-    if (elemMasks) {
-        elemMasks.forEach(elem => {
-            if (elem.hasAttr('id')) {
-                let maskId = elem.attr('id').value;
-                let clipMaskElem = elem.content[0];
-                let maskedElems = data.querySelectorAll(`*[mask="url(#${maskId})"]`);
-                let pathData = clipMaskElem.attr('d').value;
-                // Create a group for mask
-                let maskGroup = new JSAPI({ elem: 'group', attrs: {}, content: [] });
-                clipMaskElem.renameElem('clip-path');
-                clipMaskElem.attrs = {};
-                clipMaskElem.addAttr({ name: 'android:pathData', value: pathData, prefix: 'android', local: 'pathData' });
-                maskGroup.content.push(clipMaskElem);
-                // Move masked layer to mask group
-                maskedElems.forEach(item => {
-                    item.removeAttr('mask');
-                    maskGroup.content.push(item);
-                });
-                elem.parentNode.spliceContent(elem.parentNode.content.indexOf(maskedElems[0]), maskedElems.length, maskGroup);
             }
         });
     }
@@ -392,6 +453,59 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
         elemSVG.addAttr({ name: 'android:height', value: this.height + 'dp', prefix: 'android', local: 'height' });
         elemSVG.addAttr({ name: 'android:viewportWidth', value: this.viewportWidth, prefix: 'android', local: 'viewportWidth' });
         elemSVG.addAttr({ name: 'android:viewportHeight', value: this.viewportHeight, prefix: 'android', local: 'viewportHeight' });
+        // Tint color
+        if (tint) {
+            if (/^#[A-F0-9]{1,8}$/i.test(tint)) {
+                tint = tint.toUpperCase();
+            }
+            elemSVG.addAttr({ name: 'android:tint', value: tint, prefix: 'android', local: 'tint' });
+        }
+    }
+
+    // Tag gradient
+    let elemGradients = data.querySelectorAll('linearGradient, radialGradient, sweepGradient');
+    if (elemGradients) {
+        elemGradients.forEach(gradient => {
+            if (gradient.hasAttr('id')) {
+                let gradientId = gradient.attr('id').value;
+                let gradientPaths = data.querySelectorAll(`path[fill="url(#${gradientId})"], path[stroke="url(#${gradientId})"]`);
+                if (gradientPaths) {
+                    gradientPaths.forEach(path => {
+                        this.addGradientToElement(gradient, path, floatPrecision);
+                    });
+                }
+            }
+        });
+    }
+
+    // Tag mask to clip-path
+    let elemMasks = data.querySelectorAll('mask');
+    if (elemMasks) {
+        elemMasks.forEach(elem => {
+            if (elem.hasAttr('id')) {
+                let maskId = elem.attr('id').value;
+                let clipMaskElem = elem.children[0];
+                let maskedElems = data.querySelectorAll(`*[mask="url(#${maskId})"]`);
+                let pathData = clipMaskElem.attr('d').value;
+                // Create a group for mask
+                let maskGroup = new JSAPI({
+                    type: 'element',
+                    name: 'group',
+                    attrs: {},
+                    children: []
+                });
+                clipMaskElem.renameElem('clip-path');
+                clipMaskElem.attrs = {};
+                clipMaskElem.addAttr({ name: 'android:pathData', value: pathData, prefix: 'android', local: 'pathData' });
+                maskGroup.children.push(clipMaskElem);
+                // Move masked layer to mask group
+                maskedElems.forEach(item => {
+                    item.removeAttr('mask');
+                    maskGroup.children.push(item);
+                });
+                elem.parentNode.spliceContent(elem.parentNode.children.indexOf(maskedElems[0]), maskedElems.length, maskGroup);
+            }
+        });
     }
 
     // Tag path
@@ -413,7 +527,7 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
             }
             // Fill black?
             else if (fillBlack) {
-                let fillAttr = { name: 'android:fillColor', value: "#000", prefix: 'android', local: 'fillColor' };
+                let fillAttr = { name: 'android:fillColor', value: "#FF000000", prefix: 'android', local: 'fillColor' };
                 elem.addAttr(fillAttr);
             }
 
@@ -476,8 +590,16 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack) {
 };
 
 JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision) {
-    let vectorDrawableGradient = new JSAPI({ elem: 'gradient', content: [] });
-    let vectorDrawableAapt = new JSAPI({ elem: 'aapt:attr', content: [ vectorDrawableGradient ]});
+    let vectorDrawableGradient = new JSAPI({
+        type: 'element',
+        name: 'gradient',
+        children: []
+    });
+    let vectorDrawableAapt = new JSAPI({
+        type: 'element',
+        name: 'aapt:attr',
+        children: [ vectorDrawableGradient ]
+    });
 
     let gradientId = gradient.attr('id').value;
     if (elem.hasAttr('fill', `url(#${gradientId})`)) {
@@ -489,7 +611,7 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
 
     this.adjustGradientCoordinate(gradient, elem, floatPrecision);
 
-    if (gradient.elem === 'linearGradient') {
+    if (gradient.name === 'linearGradient') {
         vectorDrawableGradient.addAttr({ name: 'android:type', value: 'linear', prefix: 'android', local: 'type'});
         let startX = gradient.hasAttr('x1') ? gradient.attr('x1').value : '0';
         let startY = gradient.hasAttr('y1') ? gradient.attr('y1').value : '0';
@@ -500,7 +622,7 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
         vectorDrawableGradient.addAttr({ name: 'android:endX', value: endX, prefix: 'android', local: 'endX'});
         vectorDrawableGradient.addAttr({ name: 'android:endY', value: endY, prefix: 'android', local: 'endY'});
     }
-    if (gradient.elem === 'radialGradient') {
+    if (gradient.name === 'radialGradient') {
         vectorDrawableGradient.addAttr({ name: 'android:type', value: 'radial', prefix: 'android', local: 'type'});
         let centerX = gradient.hasAttr('cx') ? gradient.attr('cx').value : this.viewportWidth / 2;
         let centerY = gradient.hasAttr('cy') ? gradient.attr('cy').value : this.viewportHeight / 2;
@@ -512,7 +634,7 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
         vectorDrawableGradient.addAttr({ name: 'android:gradientRadius', value: gradientRadius, prefix: 'android', local: 'gradientRadius'});
     }
     // SVG is not support sweepGradient
-    if (gradient.elem === 'sweepGradient') {
+    if (gradient.name === 'sweepGradient') {
         vectorDrawableGradient.addAttr({ name: 'android:type', value: 'sweep', prefix: 'android', local: 'type'});
         let centerX = gradient.hasAttr('cx') ? gradient.attr('cx').value : this.viewportWidth / 2;
         let centerY = gradient.hasAttr('cy') ? gradient.attr('cy').value : this.viewportHeight / 2;
@@ -520,10 +642,13 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
         vectorDrawableGradient.addAttr({ name: 'android:centerY', value: centerY, prefix: 'android', local: 'centerY'});
     }
     // Color stops
-    gradient.content.forEach(item => {
-        let colorStop = new JSAPI({ elem: 'item' });
+    gradient.children.forEach(item => {
+        let colorStop = new JSAPI({
+            type: 'element',
+            name: 'item'
+        });
         const stopColorAttr = item.attr('stop-color');
-        let color = this.svgHexToAndroid(stopColorAttr == null ? '#000' : stopColorAttr.value);
+        let color = this.svgHexToAndroid(stopColorAttr == null ? '#FF000000' : stopColorAttr.value);
         const offsetAttr = item.attr('offset');
         let offset = offsetAttr == null ? 0 : offsetAttr.value;
         if (this.isPercent(offset)) {
@@ -534,11 +659,11 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
         }
         colorStop.addAttr({ name: 'android:color', value: color, prefix: 'android', local: 'color'});
         colorStop.addAttr({ name: 'android:offset', value: offset, prefix: 'android', local: 'offset'});
-        vectorDrawableGradient.content.push(colorStop);
+        vectorDrawableGradient.children.push(colorStop);
     });
 
-    if (!elem.content) elem.content = [];
-    elem.content.push(vectorDrawableAapt);
+    if (!elem.children) elem.children = [];
+    elem.children.push(vectorDrawableAapt);
 };
 
 JS2XML.prototype.adjustGradientCoordinate = function(gradient, elem, floatPrecision) {
@@ -645,22 +770,21 @@ JS2XML.prototype.round = function(value, floatPrecision) {
     return Math.round(value * Math.pow(10, floatPrecision)) / Math.pow(10, floatPrecision);
 };
 
-JS2XML.prototype.convert = function(data, floatPrecision, strict, fillBlack) {
-    this.refactorData(data, floatPrecision, fillBlack);
+JS2XML.prototype.convert = function(data, floatPrecision, strict, fillBlack, tint) {
+    this.refactorData(data, floatPrecision, fillBlack, tint);
     return this.travelConvert(data, strict);
 };
 
 JS2XML.prototype.travelConvert = function(data, strict) {
     let xml = '';
     this.indentLevel ++;
-    if (data.content) {
-        data.content.forEach(item => {
-            if (item.elem) {
-                if (this.vectordrawableTags.indexOf(item.elem) >= 0) {
-                    xml += this.createElement(item, strict);
-                } else if (strict) {
-                    throw new Error('Unsupported element ' + item.elem);
-                }
+    if (data.children) {
+        data.children.forEach(item => {
+            if (this.vectordrawableTags.indexOf(item.name) >= 0) {
+                xml += this.createElement(item, strict);
+            }
+            else if (strict) {
+                throw new Error('Unsupported element ' + item.name);
             }
         }, this);
     }
@@ -670,20 +794,20 @@ JS2XML.prototype.travelConvert = function(data, strict) {
 
 JS2XML.prototype.createElement = function(data, strict) {
     if (data.isEmpty()) {
-        return this.createIndent() + '<' + data.elem + this.createAttrs(data, strict) + '/>' + EOL;
+        return this.createIndent() + '<' + data.name + this.createAttrs(data, strict) + '/>\n';
     }
     else {
         let processedData = '';
         processedData += this.travelConvert(data, strict);
-        return this.createIndent() + '<' + data.elem + this.createAttrs(data, strict) + '>' + EOL +
+        return this.createIndent() + '<' + data.name + this.createAttrs(data, strict) + '>\n' +
             processedData +
-            this.createIndent() + '</' + data.elem + '>' + EOL;
+            this.createIndent() + '</' + data.name + '>\n';
     }
 };
 
 JS2XML.prototype.createAttrs = function(elem, strict) {
     let attrs = '';
-    if (elem.elem === 'vector') {
+    if (elem.name === 'vector') {
         attrs += ' xmlns:android="http://schemas.android.com/apk/res/android"';
     }
     elem.eachAttr(function(attr) {
@@ -692,11 +816,11 @@ JS2XML.prototype.createAttrs = function(elem, strict) {
                 if (['fillColor', 'strokeColor', 'color'].indexOf(attr.local) >= 0) {
                     attr.value = this.simplifyAndroidHexCode(attr.value);
                 }
-                if (elem.elem === 'aapt:attr' && attr.name === 'name') {
+                if (elem.name === 'aapt:attr' && attr.name === 'name') {
                     attrs += ' ' + attr.name + '="' + attr.value + '"';
                 }
                 else {
-                    attrs += EOL + this.createIndent() + ' '.repeat(this.indent) + attr.name + '="' + attr.value + '"';
+                    attrs += '\n' + this.createIndent() + ' '.repeat(this.indent) + attr.name + '="' + attr.value + '"';
                 }
             } else if (strict) {
                 throw new Error('Unsupported attribute ' + attr.name);
@@ -769,30 +893,47 @@ JS2XML.prototype.rectToPathData = function(x, y, width, height, rx, ry) {
 
 /**
  * @param {String} svgCode SVG code
- * @param {Number} floatPrecision Integer number
- * @param {Boolean} strict Set strict mode
- * @param {Boolean} fillBlack Add black fill to paths with no fill
+ * @param {Object} options*
+ *      @param {Number} floatPrecision Integer number
+ *      @param {Boolean} strict Set strict mode
+ *      @param {Boolean} fillBlack Add black fill to paths with no fill
  * @returns {Promise<string>}
  */
-module.exports = function(svgCode, floatPrecision, strict, fillBlack) {
-    if (floatPrecision === undefined) {
-        floatPrecision = 2;
-    }
-    if (strict === undefined) {
-        strict = false;
-    }
-    if (fillBlack === undefined) {
-        fillBlack = false;
+
+module.exports = function(svgCode, options) {
+    let floatPrecision = 2;
+    let strict = false;
+    let fillBlack = false;
+    let xmlTag = false;
+    let tint;
+    if (options) {
+        if (options.floatPrecision) {
+            floatPrecision = options.floatPrecision;
+        }
+        if (options.strict) {
+            strict = options.strict;
+        }
+        if (options.fillBlack) {
+            fillBlack = options.fillBlack;
+        }
+        if (options.xmlTag) {
+            xmlTag = options.xmlTag;
+        }
+        if (options.tint) {
+            tint = options.tint;
+        }
     }
     return new Promise((resolve, reject) => {
-        svg2js(svgCode, data => {
-            if (data.error) {
-               reject(data.error);
+        let data = svg2js(svgCode);
+        if (data.error) {
+            reject(data.error);
+        }
+        else {
+            let xml = new JS2XML().convert(data, floatPrecision, strict, fillBlack, tint);
+            if (xmlTag) {
+                xml = '<?xml version="1.0" encoding="utf-8"?>\n' + xml;
             }
-            else {
-                let xml = new JS2XML().convert(data, floatPrecision, strict, fillBlack);
-                resolve(xml);
-            }
-        });
+            resolve(xml);
+        }
     });
 };
