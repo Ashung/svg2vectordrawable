@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const pkg = require('../package.json');
 const svg2vectordrawable = require('./svg-to-vectordrawable');
-// const  = require('./write-content-to-file');
 const { outputFile, convertFile } = require('./svg-file-to-vectordrawable-file');
+
 
 let programName = process.argv[1];
 let exampleText = '\n\n' +
@@ -220,7 +220,7 @@ module.exports = require('coa').Cmd()
                     let fileName = path.basename(svgFile, '.svg').replace(/[^a-z0-9]/gi, '_').replace(/^\d+/,'').toLowerCase();
                     filePath = path.join(opts.output, fileName + '.xml');
                 }
-                return convertFile(svgFile, filePath, opts.precision).then(() => {
+                return convertFile(svgFile, filePath, options).then(() => {
                     console.log(`∙ ${svgFile} → ${filePath}`);
                 }).catch(err => {
                     showErrorAndExit(`Error ${err.message} while converting file ${svgFile}`);

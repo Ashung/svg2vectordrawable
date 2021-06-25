@@ -12,7 +12,7 @@ const svg2vectordrawable = require('./svg-to-vectordrawable');
  * @param {String} filePath
  * @returns {Promise<any>}
  */
-module.exports.outputFile = function(content, filePath) {
+function outputFile(content, filePath) {
     return new Promise((resolve, reject) => {
         let dir = path.dirname(filePath);
         fs.stat(dir, err => {
@@ -48,7 +48,7 @@ module.exports.outputFile = function(content, filePath) {
  * @param {Object} options
  * @returns {Promise<any>}
  */
-module.exports.convertFile = function(input, output, options) {
+function convertFile(input, output, options) {
     let _options = {
         floatPrecision: options.floatPrecision || 2,
         strict: options.strict || false,
@@ -67,3 +67,5 @@ module.exports.convertFile = function(input, output, options) {
         }).catch(err => reject(err));
     });
 };
+
+module.exports = {outputFile, convertFile};
