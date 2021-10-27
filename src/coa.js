@@ -134,7 +134,7 @@ module.exports = require('coa').Cmd()
         let options = {
             floatPrecision: opts.precision, 
             strict: false, 
-            fillBlack: true,
+            fillBlack: false,
             xmlTag: opts.xmlTag ? true : false,
             tint: opts.tint
         };
