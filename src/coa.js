@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const pkg = require('../package.json');
 const svg2vectordrawable = require('./svg-to-vectordrawable');
-const outputFile = require('./write-content-to-file');
-const convertFile = require('./svg-file-to-vectordrawable-file');
+const { outputFile, convertFile } = require('./svg-file-to-vectordrawable-file');
+
 
 let programName = process.argv[1];
 let exampleText = '\n\n' +
@@ -35,7 +35,8 @@ module.exports = require('coa').Cmd()
         .end()
 
     .opt()
-        .name('input').title('Input file, must be a SVG file.')
+        .name('input')
+        .title('Input file, must be a SVG file.')
         .short('i')
         .long('input')
         .val(function(val) {
@@ -44,7 +45,8 @@ module.exports = require('coa').Cmd()
         .end()
 
     .opt()
-        .name('folder').title('Input folder, convert all *.svg files.')
+        .name('folder')
+        .title('Input folder, convert all *.svg files.')
         .short('f')
         .long('folder')
         .val(function(val) {
@@ -53,7 +55,8 @@ module.exports = require('coa').Cmd()
         .end()
 
     .opt()
-        .name('string').title('Input full SVG code, or a SVG tag code.')
+        .name('string')
+        .title('Input full SVG code, or a SVG tag code.')
         .short('s')
         .long('string')
         .val(function(val) {
@@ -68,7 +71,8 @@ module.exports = require('coa').Cmd()
         .end()
 
     .opt()
-        .name('output').title('Output file or folder (by default the same as the input).')
+        .name('output')
+        .title('Output file or folder (by default the same as the input).')
         .short('o')
         .long('output')
         .val(function(val) {
@@ -77,21 +81,46 @@ module.exports = require('coa').Cmd()
         .end()
 
     .opt()
-        .name('precision').title('Set number of digits in the fractional part, default is 2.')
-        .short('p').long('precision')
+        .name('precision')
+        .title('[optional] Set number of digits in the fractional part, default is 2.')
+        .short('p')
+        .long('precision')
         .val(function(val) {
             if (isNaN(val)) {
                 return this.reject('Option "-p, --precision" must be an natural number.');
             }
             else {
                 val = Number(val);
-                if (Number.isInteger(val) && val >= 0) {
+                if (Number.isInteger(val) && val > 0) {
                     return Math.min(val, 10);
+                }
+                else if (val === 0){
+                    return this.reject('Option "-p, --precision" can\'t be 0.');
                 }
                 else {
                     return this.reject('Option "-p, --precision" must be an natural number.');
                 }
             }
+        })
+        .end()
+
+    .opt()
+        .name('xmlTag')
+        .title('[optional] Code with a XML tag.')
+        .short('x')
+        .long('xml')
+        .val(function(val) {
+            return true;
+        })
+        .end()
+
+    .opt()
+        .name('tint')
+        .title('[optional] Add tint color to vector drawable. -t "#FFF" ')
+        .short('t')
+        .long('tint')
+        .val(function(val) {
+            return val || this.reject('Option "-t, --tint", color value must inside quotes, like \'#FFF\' or "#FFF". ');;
         })
         .end()
 
@@ -102,9 +131,17 @@ module.exports = require('coa').Cmd()
 
         let input = opts.input || args.input;
 
+        let options = {
+            floatPrecision: opts.precision, 
+            strict: false, 
+            fillBlack: true,
+            xmlTag: opts.xmlTag ? true : false,
+            tint: opts.tint
+        };
+
         // -s '<...>' -o file
         if (opts.string) {
-            svg2vectordrawable(opts.string, opts.precision).then(xml => {
+            svg2vectordrawable(opts.string, options).then(xml => {
                 let output = opts.output;
                 if (output) {
                     if (!/\.xml$/i.test(output)) {
@@ -183,7 +220,7 @@ module.exports = require('coa').Cmd()
                     let fileName = path.basename(svgFile, '.svg').replace(/[^a-z0-9]/gi, '_').replace(/^\d+/,'').toLowerCase();
                     filePath = path.join(opts.output, fileName + '.xml');
                 }
-                return convertFile(svgFile, filePath, opts.precision).then(() => {
+                return convertFile(svgFile, filePath, options).then(() => {
                     console.log(`∙ ${svgFile} → ${filePath}`);
                 }).catch(err => {
                     showErrorAndExit(`Error ${err.message} while converting file ${svgFile}`);
