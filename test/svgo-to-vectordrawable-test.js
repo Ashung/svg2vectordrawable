@@ -1,4 +1,4 @@
-const svg2vectordrawable = require('../lib/svg-to-vectordrawable');
+const svg2vectordrawable = require('../src/svg-to-vectordrawable');
 
 describe('svg-to-vectordrawable', function() {
     let originalTimeout;
