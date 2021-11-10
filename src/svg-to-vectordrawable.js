@@ -1,6 +1,6 @@
 const { defaultPlugins, resolvePluginConfig } = require('svgo/lib/svgo/config');
-const svgoUsePlugins = require('svgo/lib/svgo/plugins');
-const svg2js = require('svgo/lib/svgo/svg2js');
+const { invokePlugins } = require('svgo/lib/svgo/plugins');
+const { parseSvg } = require('svgo/lib/parser');
 const JSAPI = require('svgo/lib/svgo/jsAPI');
 // https://www.npmjs.com/package/svg-path-bounds
 const pathBounds = require('svg-path-bounds');
@@ -203,7 +203,7 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
     let resolvedPlugins = plugins.map(plugin => {
         return resolvePluginConfig(plugin, svgoConfig);
     });
-    svgoUsePlugins(data, svgoConfig.info, resolvedPlugins);
+    invokePlugins(data, svgoConfig.info, resolvedPlugins);
 
     // Apply transform to path
     // SVGO do not apply transform to path, when some attribute value is "url()". svgo/plugins/_path.js
@@ -217,7 +217,7 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
                 }
             }, this);
         });
-        svgoUsePlugins(data, svgoConfig.info, resolvedPlugins);
+        invokePlugins(data, svgoConfig.info, resolvedPlugins);
         elemTransformPaths.forEach(elem => {
             elem.eachAttr(attr => {
                 if (attr.value.indexOf('url(') > -1) {
@@ -924,7 +924,7 @@ module.exports = function(svgCode, options) {
         }
     }
     return new Promise((resolve, reject) => {
-        let data = svg2js(svgCode);
+        let data = parseSvg(svgCode);
         if (data.error) {
             reject(data.error);
         }
