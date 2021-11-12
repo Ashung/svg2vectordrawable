@@ -7,7 +7,7 @@ const pathBounds = require('svg-path-bounds');
 // https://github.com/fontello/svgpath
 const svgpath = require('svgpath');
 
-// const js2svg = require('svgo/lib/svgo/js2svg');
+// const { stringifySvg } = require('svgo/lib/stringifier.js');
 
 let JS2XML = function() {
     this.width = 24;
@@ -228,7 +228,7 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
         });
     }
 
-    // console.log(js2svg(data).data);
+    // console.log(stringifySvg(data));
 
     // Rounded rect to path, SVGO does not convert round rect to paths.
     let elemRects = data.querySelectorAll('rect');
@@ -582,7 +582,9 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
             }
             // Path data
             if (elem.hasAttr('d')) {
-                elem.addAttr({ name: 'android:pathData', value: elem.attr('d').value, prefix: 'android', local: 'pathData' });
+                // Fix SVO remove leading zero bug
+                let pathData = svgpath(elem.attr('d').value).round(floatPrecision).toString();
+                elem.addAttr({ name: 'android:pathData', value: pathData, prefix: 'android', local: 'pathData' });
                 elem.removeAttr('d');
             }
         });
