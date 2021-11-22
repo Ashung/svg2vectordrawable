@@ -92,12 +92,71 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
         },
         plugins: [
             {
-                name: 'cleanupListOfValues',
-                params: { floatPrecision: floatPrecision, leadingZero: false }
+                name: 'cleanupAttrs'
             },
             {
-                name: 'cleanupNumericValues',
-                params: { floatPrecision: floatPrecision, leadingZero: false }
+                name: 'mergeStyles'
+            },
+            {
+                name: 'inlineStyles',
+                params: { onlyMatchedOnce: false }
+            },
+            {
+                name: 'removeDoctype'
+            },
+            {
+                name: 'removeXMLProcInst'
+            },
+            {
+                name: 'removeComments'
+            },
+            {
+                name: 'removeMetadata'
+            },
+            {
+                name: 'removeTitle'
+            },
+            {
+                name: 'removeDesc'
+            },
+            {
+                name: 'removeUselessDefs'
+            },
+            {
+                name: 'removeXMLNS',
+            },
+            {
+                name: 'removeEditorsNSData',
+            },
+            {
+                name: 'removeEmptyAttrs',
+            },
+            {
+                name: 'removeHiddenElems',
+            },
+            {
+                name: 'removeEmptyText',
+            },
+            {
+                name: 'removeEmptyContainers',
+            },
+            {
+                name: 'removeViewBox',
+                active: false
+            },
+            {
+                name: 'cleanupEnableBackground',
+            },
+            {
+                name: 'minifyStyles',
+            },
+            {
+                name: 'convertStyleToAttrs',
+                active: false
+            },
+            {
+                name: 'convertColors',
+                params: { shorthex: false, shortname: false }
             },
             {
                 name: 'convertPathData',
@@ -106,55 +165,103 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
             {
                 name: 'convertTransform',
                 active: false,
-                // params: { convertToShorts: false, floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, collapseIntoOne: true, matrixToTransform: false, shortTranslate: false, shortScale: false }
-            },
-            {
-                name: 'convertColors',
-                params: { shorthex: false, shortname: false }
             },
             {
                 name: 'removeUnknownsAndDefaults',
                 params: { unknownContent: false, unknownAttrs: false }
             },
             {
-                name: 'convertShapeToPath',
-                params: { convertArcs: true, floatPrecision: floatPrecision }
+                name: 'removeNonInheritableGroupAttrs',
             },
             {
-                name: 'mergePaths',
-                active: false
+                name: 'removeUselessStrokeAndFill',
+            },
+            {
+                name: 'removeUnusedNS',
+            },
+            {
+                name: 'prefixIds',
             },
             {
                 name: 'cleanupIDs',
                 active: false
             },
             {
+                name: 'cleanupNumericValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'cleanupListOfValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'moveElemsAttrsToGroup',
+                active: false
+            },
+            {
+                name: 'moveGroupAttrsToElems'
+            },
+            {
+                name: 'collapseGroups'
+            },
+            {
                 name: 'removeRasterImages',
             },
             {
-                name: 'removeStyleElement',
+                name: 'mergePaths',
+                active: false
             },
             {
-                name: 'inlineStyles',
-                params: { onlyMatchedOnce: false }
+                name: 'convertShapeToPath',
+                params: { convertArcs: true, floatPrecision: floatPrecision }
             },
             {
-                name: 'removeScriptElement',
+                name: 'convertEllipseToCircle',
             },
             {
-                name: 'removeXMLNS',
+                name: 'sortAttrs',
+                active: false
             },
             {
-                name: 'removeViewBox',
+                name: 'sortDefsChildren',
+            },
+            {
+                name: 'removeDimensions',
+                active: false
+            },
+            {
+                name: 'removeAttrs',
+                active: false
+            },
+            {
+                name: 'removeAttributesBySelector',
+                active: false
+            },
+            {
+                name: 'removeElementsByAttr',
+                active: false
+            },
+            {
+                name: 'addClassesToSVGElement',
+                active: false
+            },
+            {
+                name: 'addAttributesToSVGElement',
                 active: false
             },
             {
                 name: 'removeOffCanvasPaths',
             },
             {
-                name: 'moveElemsAttrsToGroup',
-                active: false
+                name: 'removeStyleElement',
             },
+            {
+                name: 'removeScriptElement',
+            },
+            {
+                name: 'reusePaths',
+                active: false
+            }
         ]
     };
 
