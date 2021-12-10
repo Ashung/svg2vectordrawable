@@ -757,7 +757,7 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
             name: 'item'
         });
         const stopColorAttr = item.attr('stop-color');
-        let color = this.svgHexToAndroid(stopColorAttr == null ? '#FF000000' : stopColorAttr.value);
+        let color = this.svgHexToAndroid(stopColorAttr == null ? '#000000FF' : stopColorAttr.value);
         const offsetAttr = item.attr('offset');
         let offset = offsetAttr == null ? 0 : offsetAttr.value;
         if (this.isPercent(offset)) {
