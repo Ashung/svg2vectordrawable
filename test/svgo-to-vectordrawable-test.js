@@ -181,4 +181,43 @@ describe('svg-to-vectordrawable', function() {
             </svg>
         `);
     });
+
+    it('Handle gradient with only stop-opacity', async () => {
+        await svg2vectordrawable(`
+            <svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 0 0 H 240 V 240 H 0 Z" fill="url(#paint)"/>
+                <defs>
+                    <linearGradient id="paint" x1="0" y1="0" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+                        <stop />
+                        <stop offset="1" stop-opacity="0.5" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        `).then(function(vd) { expect(vd).toEqual(`<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path
+        android:pathData="M0 0h240v240H0Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="240"
+                android:endY="240">
+                <item
+                    android:color="#FF000000"
+                    android:offset="0"/>
+                <item
+                    android:color="#80000000"
+                    android:offset="1"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
+`)});
+    });
 });
