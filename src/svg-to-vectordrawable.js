@@ -92,9 +92,6 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
         },
         plugins: [
             {
-                name: 'cleanupAttrs'
-            },
-            {
                 name: 'mergeStyles'
             },
             {
@@ -261,6 +258,9 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
             {
                 name: 'reusePaths',
                 active: false
+            },
+            {
+                name: 'cleanupAttrs'
             }
         ]
     };
