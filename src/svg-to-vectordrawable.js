@@ -83,7 +83,7 @@ let JS2XML = function() {
     ];
 };
 
-JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, tint) {
+JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) {
 
     // SVGO plugins config
     const svgoConfig = {
@@ -301,9 +301,11 @@ JS2XML.prototype.refactorData = async function(data, floatPrecision, fillBlack, 
     // Remove id attribute in some elements.
     // SVGO do not move transform from group to child elements which have id attribute.
     let elemHaveIds = data.querySelectorAll('path, g, circle, ellipse, line, polygon, polyline, rect');
-    elemHaveIds.forEach(elem => {
-        elem.removeAttr('id');
-    });
+    if (elemHaveIds) {
+        elemHaveIds.forEach(elem => {
+            elem.removeAttr('id');
+        });
+    }
 
     // SVG Optimize use SVGO
     const plugins = svgoConfig.plugins || defaultPlugins;

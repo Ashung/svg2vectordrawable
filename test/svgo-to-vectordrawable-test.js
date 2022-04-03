@@ -30,6 +30,16 @@ describe('svg-to-vectordrawable', function() {
         );
     });
 
+    it('supports empty svgs', function() {
+        return svg2vectordrawable('<svg></svg>')
+            .then(function(vd) { expect(vd).toEqual(`<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"/>
+`)});
+    });
+
     it('supports groups with multiple transforms', function() {
         return svg2vectordrawable(`<svg>
                 <g transform="scale(0.5 0.5) translate(10 10)">
