@@ -1,6 +1,6 @@
 {
   "name": "svg2vectordrawable",
-  "version": "2.8.3",
+  "version": "2.8.4",
   "description": "JavaScript module and command-line tools for convert SVG to Android vector drawable.",
   "author": {
     "name": "Ashung Hung",
@@ -33,7 +33,7 @@
     "mkdirp": "^1.0.4",
     "svg-path-bounds": "^1.0.1",
     "svgo": "^2.8.0",
-    "svgpath": "^2.3.0"
+    "svgpath": "^2.5.0"
   },
   "repository": {
     "type": "git",
@@ -47,9 +47,9 @@
     "node": ">=8.0.0"
   },
   "devDependencies": {
-    "jasmine": "^3.6.1",
-    "terser-webpack-plugin": "^5.1.3",
-    "webpack": "^5.39.0",
-    "webpack-cli": "^4.7.2"
+    "jasmine": "^4.0.2",
+    "terser-webpack-plugin": "^5.3.1",
+    "webpack": "^5.71.0",
+    "webpack-cli": "^4.9.2"
   }
 }

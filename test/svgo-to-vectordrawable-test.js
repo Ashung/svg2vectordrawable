@@ -52,16 +52,10 @@ describe('svg-to-vectordrawable', function() {
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <group
-        android:scaleX="0.5"
-        android:scaleY="0.5"
-        android:translateX="10"
-        android:translateY="10">
-        <path
-            android:pathData="M0 0H10V10H0z"/>
-        <path
-            android:pathData="M10 0A10 10 0 1 0 10 20 10 10 0 1 0 10 0z"/>
-    </group>
+    <path
+        android:pathData="M5 5h5v5H5z"/>
+    <path
+        android:pathData="M10 5a5 5 0 1 0 0 10 5 5 0 1 0 0-10z"/>
 </vector>
 `)});
     });
@@ -162,18 +156,12 @@ describe('svg-to-vectordrawable', function() {
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <group
-        android:scaleX="0.5"
-        android:scaleY="0.5"
-        android:translateX="10"
-        android:translateY="10">
-        <path
-            android:fillColor="#FF000000"
-            android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>
-        <path
-            android:fillColor="#FF000000"
-            android:pathData="M0 4c0-2.21 1.79-4 4-4h2c2.21 0 4 1.79 4 4v2c0 2.21-1.79 4-4 4h-2c-2.21 0-4-1.79-4-4z"/>
-    </group>
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5 7c0-1.1 0.9-2 2-2h1c1.1 0 2 0.9 2 2v1c0 1.1-0.9 2-2 2h-1c-1.1 0-2-0.9-2-2z"/>
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5 7c0-1.1 0.9-2 2-2h1c1.1 0 2 0.9 2 2v1c0 1.1-0.9 2-2 2h-1c-1.1 0-2-0.9-2-2z"/>
 </vector>
 `)});
     });

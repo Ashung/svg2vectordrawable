@@ -92,13 +92,6 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
         },
         plugins: [
             {
-                name: 'mergeStyles'
-            },
-            {
-                name: 'inlineStyles',
-                params: { onlyMatchedOnce: false }
-            },
-            {
                 name: 'removeDoctype'
             },
             {
@@ -111,38 +104,20 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 name: 'removeMetadata'
             },
             {
-                name: 'removeTitle'
-            },
-            {
-                name: 'removeDesc'
-            },
-            {
-                name: 'removeUselessDefs'
-            },
-            {
-                name: 'removeXMLNS',
+                name: 'removeXMLNS'
             },
             {
                 name: 'removeEditorsNSData',
             },
             {
-                name: 'removeEmptyAttrs',
+                name: 'cleanupAttrs'
             },
             {
-                name: 'removeHiddenElems',
+                name: 'mergeStyles'
             },
             {
-                name: 'removeEmptyText',
-            },
-            {
-                name: 'removeEmptyContainers',
-            },
-            {
-                name: 'removeViewBox',
-                active: false
-            },
-            {
-                name: 'cleanupEnableBackground',
+                name: 'inlineStyles',
+                params: { onlyMatchedOnce: false }
             },
             {
                 name: 'minifyStyles',
@@ -152,16 +127,30 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 active: false
             },
             {
+                name: 'cleanupIDs',
+                active: false
+            },
+            {
+                name: 'prefixIds',
+                active: false
+            },
+            {
+                name: 'removeRasterImages'
+            },
+            {
+                name: 'removeUselessDefs'
+            },
+            {
+                name: 'cleanupNumericValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'cleanupListOfValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
                 name: 'convertColors',
                 params: { shorthex: false, shortname: false }
-            },
-            {
-                name: 'convertPathData',
-                params: { floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, makeArcs: false, noSpaceAfterFlags: false, collapseRepeated: false }
-            },
-            {
-                name: 'convertTransform',
-                active: false,
             },
             {
                 name: 'removeUnknownsAndDefaults',
@@ -174,39 +163,17 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 name: 'removeUselessStrokeAndFill',
             },
             {
-                name: 'removeUnusedNS',
-            },
-            {
-                name: 'prefixIds',
-            },
-            {
-                name: 'cleanupIDs',
+                name: 'removeViewBox',
                 active: false
             },
             {
-                name: 'cleanupNumericValues',
-                params: { floatPrecision: floatPrecision, leadingZero: false }
+                name: 'cleanupEnableBackground',
             },
             {
-                name: 'cleanupListOfValues',
-                params: { floatPrecision: floatPrecision, leadingZero: false }
+                name: 'removeHiddenElems',
             },
             {
-                name: 'moveElemsAttrsToGroup',
-                active: false
-            },
-            {
-                name: 'moveGroupAttrsToElems'
-            },
-            {
-                name: 'collapseGroups'
-            },
-            {
-                name: 'removeRasterImages',
-            },
-            {
-                name: 'mergePaths',
-                active: false
+                name: 'removeEmptyText',
             },
             {
                 name: 'convertShapeToPath',
@@ -216,11 +183,47 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 name: 'convertEllipseToCircle',
             },
             {
+                name: 'moveElemsAttrsToGroup',
+                active: false
+            },
+            {
+                name: 'moveGroupAttrsToElems',
+            },
+            {
+                name: 'collapseGroups'
+            },
+            {
+                name: 'convertPathData',
+                params: { floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, makeArcs: false, noSpaceAfterFlags: false, collapseRepeated: false }
+            },
+            {
+                name: 'convertTransform',
+            },
+            {
+                name: 'removeEmptyAttrs',
+            },
+            {
+                name: 'removeEmptyContainers',
+            },
+            {
+                name: 'mergePaths',
+                active: false
+            },
+            {
+                name: 'removeUnusedNS',
+            },
+            {
                 name: 'sortAttrs',
                 active: false
             },
             {
                 name: 'sortDefsChildren',
+            },
+            {
+                name: 'removeTitle'
+            },
+            {
+                name: 'removeDesc'
             },
             {
                 name: 'removeDimensions',
@@ -243,25 +246,25 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 active: false
             },
             {
+                name: 'removeStyleElement',
+                active: false
+            },
+            {
+                name: 'removeScriptElement',
+                active: false
+            },
+            {
                 name: 'addAttributesToSVGElement',
                 active: false
             },
             {
                 name: 'removeOffCanvasPaths',
-            },
-            {
-                name: 'removeStyleElement',
-            },
-            {
-                name: 'removeScriptElement',
+                active: false
             },
             {
                 name: 'reusePaths',
                 active: false
             },
-            {
-                name: 'cleanupAttrs'
-            }
         ]
     };
 
@@ -472,30 +475,52 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 let svgTransform = elem.attr('transform').value;
                 let number = '((?:-)?\\d+(?:\\.\\d+)?)';
                 let separator = '(?:(?:\\s+)|(?:\\s*,\\s*))';
-                let translateRegExp = new RegExp(`translate\\(${number}${separator}?${number}?\\)`);
-                let scaleRegExp = new RegExp(`scale\\(${number}${separator}?${number}?\\)`);
-                let rotateRegExp = new RegExp(`rotate\\(${number}${separator}?${number}?${separator}?${number}?\\)`);
-                let skewRegExp = new RegExp(`skew\([XY]\)\\(${number}\\)`);
-                let matrixRegExp = new RegExp('matrix\\(\(.*\)\\)');
-                let translateMatch = translateRegExp.exec(svgTransform);
-                let scaleMatch = scaleRegExp.exec(svgTransform);
-                let rotateMatch = rotateRegExp.exec(svgTransform);
-                let skewMatch = skewRegExp.exec(svgTransform);
-                let matrixMatch = matrixRegExp.exec(svgTransform);
                 let attrs = { rotation: '', pivotX: '', pivotY: '', scaleX: '', scaleY: '', translateX: '', translateY: ''};
+
+                let translateRegExp = new RegExp(`translate\\(${number}${separator}?${number}?\\)`, 'g');
+                let translateX = 0;
+                let translateY = 0;
+                let translateMatch;
+                while (translateMatch = translateRegExp.exec(svgTransform)) {
+                    translateX += Number(translateMatch[1]);
+                    translateY += Number(translateMatch[2]);
+                }
+                if (translateX !== 0) {
+                    attrs.translateX = translateX;
+                }
+                if (translateY !== 0) {
+                    attrs.translateY = translateY;
+                }
+                
+                let scaleRegExp = new RegExp(`scale\\(${number}${separator}?${number}?\\)`, 'g');
+                let scaleX = 1;
+                let scaleY = 1;
+                let scaleMatch;
+                while (scaleMatch = scaleRegExp.exec(svgTransform)) {
+                    console.log(scaleMatch)
+                    scaleX *= Number(scaleMatch[1]);
+                    scaleY *= Number(scaleMatch[2]) || Number(scaleMatch[1]);
+                }
+                console.log(scaleX, scaleY);
+                if (scaleX !== 1) {
+                    attrs.scaleX = scaleX;
+                }
+                if (scaleY !== 1) {
+                    attrs.scaleY = scaleY;
+                }
+
+                let rotateRegExp = new RegExp(`rotate\\(${number}${separator}?${number}?${separator}?${number}?\\)`);
+                let rotateMatch = rotateRegExp.exec(svgTransform);
                 if (rotateMatch) {
                     attrs.rotation = rotateMatch[1];
                     attrs.pivotX = rotateMatch[2] || '';
                     attrs.pivotY = rotateMatch[3] || '';
                 }
-                if (scaleMatch) {
-                    attrs.scaleX = scaleMatch[1];
-                    attrs.scaleY = scaleMatch[2] || scaleMatch[1];
-                }
-                if (translateMatch) {
-                    attrs.translateX = translateMatch[1];
-                    attrs.translateY = translateMatch[2] || '';
-                }
+
+                let skewRegExp = new RegExp(`skew\([XY]\)\\(${number}\\)`);
+                let matrixRegExp = new RegExp('matrix\\(\(.*\)\\)');
+                let skewMatch = skewRegExp.exec(svgTransform);
+                let matrixMatch = matrixRegExp.exec(svgTransform);
                 if (skewMatch || matrixMatch) {
                     let paths = elem.querySelectorAll('path');
                     paths.forEach(path => {
