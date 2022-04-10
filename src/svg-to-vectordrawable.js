@@ -407,6 +407,12 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 }
             }
             elem.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
+            elem.removeAttr('x')
+            elem.removeAttr('y')
+            elem.removeAttr('width')
+            elem.removeAttr('height')
+            elem.removeAttr('rx')
+            elem.removeAttr('ry')
         });
     }
 
@@ -609,6 +615,9 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                     });
                 }
             }
+
+            // Remove original gradient element
+            gradient.parentNode.spliceContent(gradient.parentNode.children.indexOf(gradient), 1, []);
         });
     }
 
@@ -639,6 +648,9 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 });
                 elem.parentNode.spliceContent(elem.parentNode.children.indexOf(maskedElems[0]), maskedElems.length, maskGroup);
             }
+
+            // Remove original mask element
+            elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 1, []);
         });
     }
 
@@ -648,7 +660,10 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
         elemPaths.forEach(elem => {
             // Fill
             if (elem.hasAttr('fill')) {
-                if (!/^url\(#.*\)$/.test(elem.attr('fill').value) && elem.attr('fill').value !== 'none') {
+                if (elem.attr('fill').value === 'none') {
+                    elem.removeAttr('fill');
+                }
+                else if (!/^url\(#.*\)$/.test(elem.attr('fill').value)) {
                     let color = this.svgHexToAndroid(elem.attr('fill').value);
                     let fillAttr = { name: 'android:fillColor', value: color, prefix: 'android', local: 'fillColor' };
                     if (elem.hasAttr('fill-opacity')) {
@@ -740,9 +755,11 @@ JS2XML.prototype.addGradientToElement = function(gradient, elem, floatPrecision)
     let gradientId = gradient.attr('id').value;
     if (elem.hasAttr('fill', `url(#${gradientId})`)) {
         vectorDrawableAapt.addAttr({ name: 'name', value: 'android:fillColor', prefix: '', local: 'name'})
+        elem.removeAttr('fill')
     }
     if (elem.hasAttr('stroke', `url(#${gradientId})`)) {
         vectorDrawableAapt.addAttr({ name: 'name', value: 'android:strokeColor', prefix: '', local: 'name'})
+        elem.removeAttr('stroke')
     }
 
     this.adjustGradientCoordinate(gradient, elem, floatPrecision);

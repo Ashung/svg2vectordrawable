@@ -13,7 +13,36 @@ describe('svg-to-vectordrawable', function() {
     });
 
     it('resolves in strict mode when all elements and attributes are supported', function() {
-        return svg2vectordrawable('<svg><rect width="10" height="10" /></svg>', { strict: true });
+        return svg2vectordrawable(`<svg height="100" width="100" x="10" y="10" viewBox="0 0 100 100">
+                <g>
+                    <circle cx="54" cy="54" r="35" fill="#888" />
+                    <ellipse cx="54" cy="54" rx="35" ry="5" fill="#11223344" />
+                    <line x1="5" y1="5" x2="10" y2="5" fill="red" opacity="0.7" />
+                    <polygon points="0,0 0,10 10,0 10,10" stroke="red" />
+                    <polyline points="0,0 0,10 10,0 10,10" stroke="blue" fill="none" />
+                    <rect x="5" y="5" width="10" height="10" rx="2" ry="2" stroke="#888" opacity="0.5" />
+                </g>
+
+                <linearGradient id="linearGradient" gradientTransform="rotate(90)">
+                    <stop offset="5%" stop-color="gold" stop-opacity="0.5" />
+                    <stop offset="95%" stop-color="red" />
+                </linearGradient>
+                <radialGradient id="radialGradient">
+                    <stop offset="10%" stop-color="gold" />
+                    <stop offset="95%" stop-color="red" stop-opacity="0.5" />
+                </radialGradient>
+                <mask id="mask">
+                    <rect x="0" y="0" width="100" height="100" fill="white" />
+                </mask>
+
+                <g>
+                    <circle cx="20" cy="20" r="10" fill="url(#linearGradient)"/>
+                    <circle cx="20" cy="20" r="10" fill="url(#radialGradient)" />
+                    <circle cx="20" cy="20" r="10" mask="url(#mask)" />                
+                </g>
+            </svg>`,
+            { strict: true },
+        );
     });
 
     it('rejects in strict mode on no supported elements', function() {
