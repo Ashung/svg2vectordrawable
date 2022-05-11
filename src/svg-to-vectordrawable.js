@@ -503,11 +503,9 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 let scaleY = 1;
                 let scaleMatch;
                 while (scaleMatch = scaleRegExp.exec(svgTransform)) {
-                    console.log(scaleMatch)
                     scaleX *= Number(scaleMatch[1]);
                     scaleY *= Number(scaleMatch[2]) || Number(scaleMatch[1]);
                 }
-                console.log(scaleX, scaleY);
                 if (scaleX !== 1) {
                     attrs.scaleX = scaleX;
                 }
@@ -529,20 +527,22 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 let matrixMatch = matrixRegExp.exec(svgTransform);
                 if (skewMatch || matrixMatch) {
                     let paths = elem.querySelectorAll('path');
-                    paths.forEach(path => {
-                        let pathData = path.attr('d').value;
-                        if (skewMatch) {
-                            let skewX = skewMatch[1] === 'X' ? parseFloat(skewMatch[2]) : 0;
-                            let skewY = skewMatch[1] === 'Y' ? parseFloat(skewMatch[2]) : 0;
-                            pathData = svgpath(pathData).skewX(skewX).skewY(skewY).rel().round(floatPrecision).toString();
-                        }
-                        if (matrixMatch) {
-                            let matrix = matrixMatch[1].split(' ').map(item => parseFloat(item));
-                            pathData = svgpath(pathData).matrix(matrix).rel().round(floatPrecision).toString();
-                        }
-                        path.removeAttr('d');
-                        path.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
-                    });
+                    if (paths) {
+                        paths.forEach(path => {
+                            let pathData = path.attr('d').value;
+                            if (skewMatch) {
+                                let skewX = skewMatch[1] === 'X' ? parseFloat(skewMatch[2]) : 0;
+                                let skewY = skewMatch[1] === 'Y' ? parseFloat(skewMatch[2]) : 0;
+                                pathData = svgpath(pathData).skewX(skewX).skewY(skewY).rel().round(floatPrecision).toString();
+                            }
+                            if (matrixMatch) {
+                                let matrix = matrixMatch[1].split(' ').map(item => parseFloat(item));
+                                pathData = svgpath(pathData).matrix(matrix).rel().round(floatPrecision).toString();
+                            }
+                            path.removeAttr('d');
+                            path.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
+                        });
+                    }
                 }
                 Object.keys(attrs).forEach(key => {
                     if (attrs[key] !== '' && (attrs[key] !== '0' && (key !== 'scaleX' || key !== 'scaleY'))) {
@@ -628,7 +628,6 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
             if (elem.hasAttr('id')) {
                 let maskId = elem.attr('id').value;
                 let clipMaskElem = elem.children[0];
-                let maskedElems = data.querySelectorAll(`*[mask="url(#${maskId})"]`);
                 let pathData = clipMaskElem.attr('d').value;
                 // Create a group for mask
                 let maskGroup = new JSAPI({
@@ -642,13 +641,17 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                 clipMaskElem.addAttr({ name: 'android:pathData', value: pathData, prefix: 'android', local: 'pathData' });
                 maskGroup.children.push(clipMaskElem);
                 // Move masked layer to mask group
-                maskedElems.forEach(item => {
-                    item.removeAttr('mask');
-                    maskGroup.children.push(item);
-                });
-                elem.parentNode.spliceContent(elem.parentNode.children.indexOf(maskedElems[0]), maskedElems.length, maskGroup);
+                let maskedElems = data.querySelectorAll(`*[mask="url(#${maskId})"]`);
+                if (maskedElems) {
+                    maskedElems.forEach(item => {
+                        item.removeAttr('mask');
+                        maskGroup.children.push(item);
+                    });
+                    elem.parentNode.spliceContent(elem.parentNode.children.indexOf(maskedElems[0]), maskedElems.length, maskGroup);
+                } else {
+                    elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 0, maskGroup);
+                }
             }
-
             // Remove original mask element
             elem.parentNode.spliceContent(elem.parentNode.children.indexOf(elem), 1, []);
         });
