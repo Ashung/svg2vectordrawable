@@ -1,5 +1,4 @@
-const { defaultPlugins, resolvePluginConfig } = require('svgo/lib/svgo/config');
-const { invokePlugins } = require('svgo/lib/svgo/plugins');
+const { optimize } = require('svgo');
 const { parseSvg } = require('svgo/lib/parser');
 const JSAPI = require('svgo/lib/svgo/jsAPI');
 // https://www.npmjs.com/package/svg-path-bounds
@@ -85,213 +84,40 @@ let JS2XML = function() {
 
 JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) {
 
-    // SVGO plugins config
-    const svgoConfig = {
-        info: {
-            input: 'string'
-        },
-        plugins: [
-            {
-                name: 'removeDoctype'
-            },
-            {
-                name: 'removeXMLProcInst'
-            },
-            {
-                name: 'removeComments'
-            },
-            {
-                name: 'removeMetadata'
-            },
-            {
-                name: 'removeXMLNS'
-            },
-            {
-                name: 'removeEditorsNSData',
-            },
-            {
-                name: 'cleanupAttrs'
-            },
-            {
-                name: 'mergeStyles'
-            },
-            {
-                name: 'inlineStyles',
-                params: { onlyMatchedOnce: false }
-            },
-            {
-                name: 'minifyStyles',
-            },
-            {
-                name: 'convertStyleToAttrs',
-                active: false
-            },
-            {
-                name: 'cleanupIDs',
-                active: false
-            },
-            {
-                name: 'prefixIds',
-                active: false
-            },
-            {
-                name: 'removeRasterImages'
-            },
-            {
-                name: 'removeUselessDefs'
-            },
-            {
-                name: 'cleanupNumericValues',
-                params: { floatPrecision: floatPrecision, leadingZero: false }
-            },
-            {
-                name: 'cleanupListOfValues',
-                params: { floatPrecision: floatPrecision, leadingZero: false }
-            },
-            {
-                name: 'convertColors',
-                params: { shorthex: false, shortname: false }
-            },
-            {
-                name: 'removeUnknownsAndDefaults',
-                params: { unknownContent: false, unknownAttrs: false }
-            },
-            {
-                name: 'removeNonInheritableGroupAttrs',
-            },
-            {
-                name: 'removeUselessStrokeAndFill',
-            },
-            {
-                name: 'removeViewBox',
-                active: false
-            },
-            {
-                name: 'cleanupEnableBackground',
-            },
-            {
-                name: 'removeHiddenElems',
-            },
-            {
-                name: 'removeEmptyText',
-            },
-            {
-                name: 'convertShapeToPath',
-                params: { convertArcs: true, floatPrecision: floatPrecision }
-            },
-            {
-                name: 'convertEllipseToCircle',
-            },
-            {
-                name: 'moveElemsAttrsToGroup',
-                active: false
-            },
-            {
-                name: 'moveGroupAttrsToElems',
-            },
-            {
-                name: 'collapseGroups'
-            },
-            {
-                name: 'convertPathData',
-                params: { floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, makeArcs: false, noSpaceAfterFlags: false, collapseRepeated: false }
-            },
-            {
-                name: 'convertTransform',
-            },
-            {
-                name: 'removeEmptyAttrs',
-            },
-            {
-                name: 'removeEmptyContainers',
-            },
-            {
-                name: 'mergePaths',
-                active: false
-            },
-            {
-                name: 'removeUnusedNS',
-            },
-            {
-                name: 'sortAttrs',
-                active: false
-            },
-            {
-                name: 'sortDefsChildren',
-            },
-            {
-                name: 'removeTitle'
-            },
-            {
-                name: 'removeDesc'
-            },
-            {
-                name: 'removeDimensions',
-                active: false
-            },
-            {
-                name: 'removeAttrs',
-                active: false
-            },
-            {
-                name: 'removeAttributesBySelector',
-                active: false
-            },
-            {
-                name: 'removeElementsByAttr',
-                active: false
-            },
-            {
-                name: 'addClassesToSVGElement',
-                active: false
-            },
-            {
-                name: 'removeStyleElement',
-                active: false
-            },
-            {
-                name: 'removeScriptElement',
-                active: false
-            },
-            {
-                name: 'addAttributesToSVGElement',
-                active: false
-            },
-            {
-                name: 'removeOffCanvasPaths',
-                active: false
-            },
-            {
-                name: 'reusePaths',
-                active: false
-            },
-        ]
-    };
-
     // Tag use to original
     let elemUses = data.querySelectorAll('use');
     if (elemUses) {
         elemUses.forEach(elem => {
-            if (elem.hasAttr('xlink:href')) {
-                let originalElem = data.querySelector(elem.attr('xlink:href').value);
+            if (elem.hasAttr('xlink:href') || elem.hasAttr('href')) {
+                let attr = '';
+                if (elem.hasAttr('xlink:href')) {
+                    attr = 'xlink:href';
+                }
+                if (elem.hasAttr('href')) {
+                    attr = 'href';
+                }
+                let originalElem = data.querySelector(elem.attr(attr).value);
                 let newElem = new JSAPI({
                     type: originalElem.type,
                     name: originalElem.name
                 });
                 originalElem.eachAttr(attr => {
-                    if (attr.name !== 'xlink:href' && attr.name !== 'id') {
+                    if (attr.name !== attr && attr.name !== 'id') {
                         newElem.addAttr(attr);
                     }
                 });
                 elem.eachAttr(attr => {
-                    if (attr.name !== 'xlink:href' && attr.name !== 'id' && attr.name !== 'class') {
+                    if (attr.name !== attr && attr.name !== 'id' && attr.name !== 'class') {
                         newElem.addAttr(attr);
                     }
                 });
                 if ((newElem.attr('x') || newElem.attr('y')) && newElem.attr('d')) {
                     let x = newElem.attr('x') ? parseFloat(newElem.attr('x').value) : 0;
                     let y = newElem.attr('y') ? parseFloat(newElem.attr('y').value) : 0;
-                    let pathData = svgpath(newElem.attr('d').value).translate(x, y).rel().round(floatPrecision).toString();
+                    let pathData = newElem.attr('d').value;
+                    if (x !== 0 || y !== 0) {
+                        pathData = svgpath(pathData).translate(x, y).rel().round(floatPrecision).toString();
+                    }
                     newElem.removeAttr('d');
                     newElem.addAttr({ name: 'd', value: pathData, prefix: '', local: 'd' });
                 }
@@ -309,38 +135,6 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
             elem.removeAttr('id');
         });
     }
-
-    // SVG Optimize use SVGO
-    const plugins = svgoConfig.plugins || defaultPlugins;
-    let resolvedPlugins = plugins.map(plugin => {
-        return resolvePluginConfig(plugin, svgoConfig);
-    });
-    invokePlugins(data, svgoConfig.info, resolvedPlugins);
-
-    // Apply transform to path
-    // SVGO do not apply transform to path, when some attribute value is "url()". svgo/plugins/_path.js
-    let elemTransformPaths = data.querySelectorAll('path[transform*="("]');
-    if (elemTransformPaths) {
-        elemTransformPaths.forEach(elem => {
-            elem.eachAttr(attr => {
-                if (attr.value.indexOf('url(') > -1) {
-                    elem.removeAttr(attr.name);
-                    elem.addAttr({ name: '_' + attr.name, value: attr.value, prefix: '', local: '_' + attr.name });
-                }
-            }, this);
-        });
-        invokePlugins(data, svgoConfig.info, resolvedPlugins);
-        elemTransformPaths.forEach(elem => {
-            elem.eachAttr(attr => {
-                if (attr.value.indexOf('url(') > -1) {
-                    elem.removeAttr(attr.name);
-                    elem.addAttr({ name: attr.name.substr(1), value: attr.value, prefix: '', local: attr.name.substr(1) });
-                }
-            }, this);
-        });
-    }
-
-    // console.log(stringifySvg(data));
 
     // Rounded rect to path, SVGO does not convert round rect to paths.
     let elemRects = data.querySelectorAll('rect');
@@ -628,7 +422,7 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
             if (elem.hasAttr('id')) {
                 let maskId = elem.attr('id').value;
                 let clipMaskElem = elem.children[0];
-                let pathData = clipMaskElem.attr('d').value;
+                let pathData = svgpath(clipMaskElem.attr('d').value).round(floatPrecision).toString();
                 // Create a group for mask
                 let maskGroup = new JSAPI({
                     type: 'element',
@@ -1053,6 +847,8 @@ JS2XML.prototype.rectToPathData = function(x, y, width, height, rx, ry) {
  *      @param {Number} floatPrecision Integer number
  *      @param {Boolean} strict Set strict mode
  *      @param {Boolean} fillBlack Add black fill to paths with no fill
+ *      @param {Boolean} xmlTag
+ *      @param {String} tint color
  * @returns {Promise<string>}
  */
 
@@ -1079,8 +875,197 @@ module.exports = function(svgCode, options) {
             tint = options.tint;
         }
     }
+
+    // SVGO plugins config
+    const svgoConfig = {
+        info: {
+            input: 'string'
+        },
+        plugins: [
+            {
+                name: 'removeDoctype'
+            },
+            {
+                name: 'removeXMLProcInst'
+            },
+            {
+                name: 'removeComments'
+            },
+            {
+                name: 'removeMetadata'
+            },
+            {
+                name: 'removeEditorsNSData',
+            },
+            {
+                name: 'cleanupAttrs'
+            },
+            {
+                name: 'mergeStyles'
+            },
+            {
+                name: 'inlineStyles',
+                params: { onlyMatchedOnce: false }
+            },
+            {
+                name: 'minifyStyles',
+            },
+            {
+                name: 'cleanupIDs',
+                active: false
+            },
+            {
+                name: 'removeUselessDefs'
+            },
+            {
+                name: 'cleanupNumericValues',
+                params: { floatPrecision: 1 || floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'convertColors',
+                params: { shorthex: false, shortname: false }
+            },
+            {
+                name: 'removeUnknownsAndDefaults',
+                params: { unknownContent: false, unknownAttrs: false }
+            },
+            {
+                name: 'removeNonInheritableGroupAttrs',
+            },
+            {
+                name: 'removeUselessStrokeAndFill',
+            },
+            {
+                name: 'removeViewBox',
+                active: false
+            },
+            {
+                name: 'cleanupEnableBackground',
+            },
+            {
+                name: 'removeHiddenElems',
+            },
+            {
+                name: 'removeEmptyText',
+            },
+            {
+                name: 'convertShapeToPath',
+                params: { convertArcs: true, floatPrecision: floatPrecision }
+            },
+            {
+                name: 'convertEllipseToCircle',
+            },
+            {
+                name: 'moveElemsAttrsToGroup',
+                active: false
+            },
+            {
+                name: 'moveGroupAttrsToElems',
+            },
+            {
+                name: 'collapseGroups'
+            },
+            {
+                name: 'convertPathData',
+                params: { floatPrecision: floatPrecision, transformPrecision: floatPrecision, leadingZero: false, makeArcs: false, noSpaceAfterFlags: false, collapseRepeated: false }
+            },
+            {
+                name: 'convertTransform',
+            },
+            {
+                name: 'removeEmptyAttrs',
+            },
+            {
+                name: 'removeEmptyContainers',
+            },
+            {
+                name: 'mergePaths',
+                active: false
+            },
+            {
+                name: 'removeUnusedNS',
+            },
+            {
+                name: 'sortDefsChildren',
+            },
+            {
+                name: 'removeTitle'
+            },
+            {
+                name: 'removeDesc'
+            },
+            {
+                name: 'removeXMLNS',
+                active: false
+            },
+            {
+                name: 'removeRasterImages'
+            },
+            {
+                name: 'cleanupListOfValues',
+                params: { floatPrecision: floatPrecision, leadingZero: false }
+            },
+            {
+                name: 'sortAttrs',
+                active: false
+            },
+            {
+                name: 'convertStyleToAttrs',
+                active: false
+            },
+            {
+                name: 'prefixIds',
+                active: false
+            },
+            {
+                name: 'removeDimensions',
+                active: false
+            },
+            {
+                name: 'removeAttrs',
+                active: false
+            },
+            {
+                name: 'removeAttributesBySelector',
+                active: false
+            },
+            {
+                name: 'removeElementsByAttr',
+                active: false
+            },
+            {
+                name: 'addClassesToSVGElement',
+                active: false
+            },
+            {
+                name: 'removeStyleElement',
+                active: false
+            },
+            {
+                name: 'removeScriptElement',
+                active: false
+            },
+            {
+                name: 'addAttributesToSVGElement',
+                active: false
+            },
+            {
+                name: 'removeOffCanvasPaths',
+                active: false
+            },
+            {
+                name: 'reusePaths',
+                active: false
+            },
+        ]
+    };
+
+    // SVG Optimize use SVGO
+    const result = optimize(svgCode, svgoConfig);
+    const optimizedSvgCode = result.data;
+
     return new Promise((resolve, reject) => {
-        let data = parseSvg(svgCode);
+        let data = parseSvg(optimizedSvgCode);
         if (data.error) {
             reject(data.error);
         }
