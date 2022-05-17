@@ -8,11 +8,11 @@ module.exports = {
             extractComments: false,
         })],
     },
-    entry: './src/svg-to-vectordrawable.js',
+    entry: './src/main.browser.js',
     output: {
         libraryTarget: 'umd',
         library: 'svg2vectordrawable',
-        filename: 'svg-to-vectordrawable.bundle.js',
+        filename: 'svg-to-vectordrawable.browser.umd.js',
         path: path.resolve(__dirname, 'dist')
     }
 }

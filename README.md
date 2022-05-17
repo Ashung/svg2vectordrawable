@@ -14,6 +14,19 @@ npm install svg2vectordrawable -g
 s2v -h
 ```
 
+Node.js:
+
+```javascript
+const svg2vectordrawable = require('svg2vectordrawable');
+```
+
+Browser:
+
+```javascript
+const svg2vectordrawable = require('svg2vectordrawable/src/main.browser');
+import svg2vectordrawable from 'svg2vectordrawable';
+```
+
 Convert a SVG to vector drawable file.
 
 ```shell
@@ -57,7 +70,7 @@ With options arguments.
 
 ```javascript
 let options = {
-		floatPrecision: 3, // default is 2
+    floatPrecision: 3, // default is 2
     fillBlack: true, // Add black color to path element, defaults to false
     xmlTag: true, // Add XML Declaration, defaults to false
     tint: '#FFFFFFFF' // And tint to vector tag

@@ -41,6 +41,19 @@ s2v -s '<Paste from Sketch SVG code>' -o output.xml
 npm install svg2vectordrawable -s
 ```
 
+Node.js 环境：
+
+```javascript
+const svg2vectordrawable = require('svg2vectordrawable');
+```
+
+浏览器环境：
+
+```javascript
+const svg2vectordrawable = require('svg2vectordrawable/src/main.browser');
+import svg2vectordrawable from 'svg2vectordrawable';
+```
+
 示例 1，将 SVG 代码转为 Android Vector Drawable 代码，并写入文件。
 
 ```javascript
@@ -55,7 +68,7 @@ svg2vectordrawable(svgCode).then(xmlCode => {
 
 ```javascript
 let options = {
-		floatPrecision: 3, // 数值精度，默认为 2
+    floatPrecision: 3, // 数值精度，默认为 2
     fillBlack: true, // 为无填充变成填充黑色，默认为 false
     xmlTag: true, // 添加 XML 文档声明标签，默认为 false
     tint: '#FFFFFFFF' // 在 vector 标签添加着色属性
