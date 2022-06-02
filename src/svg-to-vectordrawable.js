@@ -252,9 +252,9 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                         }
                         item.addAttr({ name: 'opacity', value: opacity, prefix: '', local: 'opacity' });
                     }
-                    // Move fill-rule to child node
+                    // Move fill-rule to child node which has fill attribute
                     if (elem.hasAttr('fill-rule', 'evenodd')) {
-                        if (!item.hasAttr('fill-rule', 'nonzero')) {
+                        if (!item.hasAttr('fill-rule', 'nonzero') && item.hasAttr('fill')) {
                             item.addAttr({ name: 'android:fillType', value: 'evenOdd', prefix: 'android', local: 'fillType' });
                         }
                     }
@@ -284,10 +284,10 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                     translateX += Number(translateMatch[1]);
                     translateY += Number(translateMatch[2]);
                 }
-                if (translateX !== 0) {
+                if (translateX !== 0 && !isNaN(translateX)) {
                     attrs.translateX = translateX;
                 }
-                if (translateY !== 0) {
+                if (translateY !== 0 && !isNaN(translateY)) {
                     attrs.translateY = translateY;
                 }
                 
@@ -299,10 +299,10 @@ JS2XML.prototype.refactorData = function(data, floatPrecision, fillBlack, tint) 
                     scaleX *= Number(scaleMatch[1]);
                     scaleY *= Number(scaleMatch[2]) || Number(scaleMatch[1]);
                 }
-                if (scaleX !== 1) {
+                if (scaleX !== 1 && !isNaN(scaleX)) {
                     attrs.scaleX = scaleX;
                 }
-                if (scaleY !== 1) {
+                if (scaleY !== 1 && !isNaN(scaleY)) {
                     attrs.scaleY = scaleY;
                 }
 
